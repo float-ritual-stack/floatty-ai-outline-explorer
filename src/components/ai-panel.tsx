@@ -74,7 +74,7 @@ export function AiPanel({
         parts.push(`Use get_block to fetch these block IDs: ${blockIds.join(", ")}`);
       }
       if (pageNames.length > 0) {
-        parts.push(`Use expand_page to fetch these pages: ${pageNames.join(", ")}`);
+        parts.push(`Use expand_page to fetch these pages: ${pageNames.map((p) => JSON.stringify(p)).join(", ")}`);
       }
 
       return `I've selected ${selectedIds.length} items in the floatty knowledge graph.\n\nFirst, ${parts.join(". Also, ")}.\n\nThen:\n\n${taskPrompt}`;
@@ -104,15 +104,23 @@ export function AiPanel({
     });
   }
 
-  // Detect if the agent hit the step limit (last message ends with tool calls, not text)
+  // Detect if the agent hit the step limit via server-sent data part
   const hitStepLimit = useMemo(() => {
     if (status !== "ready" || messages.length === 0) return false;
     const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
     if (!lastAssistant) return false;
-    const parts = lastAssistant.parts;
-    if (parts.length === 0) return false;
-    const lastPart = parts[parts.length - 1];
-    return isToolUIPart(lastPart);
+    for (const part of lastAssistant.parts) {
+      if (
+        part.type === "data-step-status" &&
+        typeof part.data === "object" &&
+        part.data !== null &&
+        "finishReason" in part.data &&
+        (part.data as { finishReason: string }).finishReason === "tool-calls"
+      ) {
+        return true;
+      }
+    }
+    return false;
   }, [messages, status]);
 
   function handleContinue() {
@@ -198,7 +206,7 @@ export function AiPanel({
               onChange={(e) => setStreamSpec(e.target.checked)}
               className="accent-cyan"
             />
-            stream spec
+            live render
           </label>
         </div>
       )}

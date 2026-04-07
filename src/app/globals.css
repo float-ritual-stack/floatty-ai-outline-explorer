@@ -63,38 +63,41 @@ body {
   background: var(--color-dim);
 }
 
-/* Streamdown text sizing to match our theme */
-.sdm-markdown {
+/* AI panel prose — wraps Streamdown output to match panel sizing */
+.ai-prose {
   font-size: 12px;
   line-height: 1.5;
   font-family: var(--font-mono);
 }
-.sdm-markdown p {
+.ai-prose p {
   margin: 0.25em 0;
 }
-.sdm-markdown h1 { font-size: 14px; }
-.sdm-markdown h2 { font-size: 13px; }
-.sdm-markdown h3 { font-size: 12px; }
-.sdm-markdown pre {
+.ai-prose h1 { font-size: 14px; }
+.ai-prose h2 { font-size: 13px; }
+.ai-prose h3 { font-size: 12px; }
+.ai-prose pre {
   font-size: 11px;
   padding: 6px 8px;
   border-radius: 4px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
 }
-.sdm-markdown code:not(pre code) {
+.ai-prose code:not(pre code) {
   font-size: 11px;
   padding: 1px 4px;
   border-radius: 3px;
   background: var(--color-surface2);
   color: var(--color-cyan);
 }
-.sdm-markdown ul, .sdm-markdown ol {
+.ai-prose ul, .ai-prose ol {
   padding-left: 1.2em;
   margin: 0.25em 0;
 }
-.sdm-markdown li {
+.ai-prose li {
   margin: 0.1em 0;
+}
+.ai-prose strong {
+  color: var(--color-text);
 }
 
 /* Spinner animation for loading states */

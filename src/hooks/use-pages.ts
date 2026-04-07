@@ -25,7 +25,7 @@ export function usePages() {
             name: node.id,
             blockId: node.bid ?? null,
             blockCount: node.b,
-            isStub: node.ref > 0,
+            isStub: !node.bid,
           }))
           .sort((a, b) => b.blockCount - a.blockCount);
 

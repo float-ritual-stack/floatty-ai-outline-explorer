@@ -76,12 +76,14 @@ export function MessageBubble({ message, onNavigateToPage, isStreaming, streamSp
 
       {/* Text content (after spec extraction — only the non-spec text remains) */}
       {text && (
-        <Streamdown
-          plugins={streamdownPlugins}
-          isAnimating={isStreaming}
-        >
-          {text}
-        </Streamdown>
+        <div className="ai-prose">
+          <Streamdown
+            plugins={streamdownPlugins}
+            isAnimating={isStreaming}
+          >
+            {text}
+          </Streamdown>
+        </div>
       )}
 
       {/* Rendered spec (if the AI emitted one) */}

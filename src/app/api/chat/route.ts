@@ -7,7 +7,9 @@ import {
   wrapLanguageModel,
   gateway,
   type UIMessage,
+  type ModelMessage,
 } from "ai";
+import { z } from "zod";
 import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { pipeJsonRender } from "@json-render/core";
 import {
@@ -15,33 +17,45 @@ import {
   EXPLORER_TOOLS,
 } from "@/lib/agents/explorer-agent";
 
-export async function POST(req: Request) {
-  const { messages, maxSteps, maxTokens }: {
-    messages: UIMessage[];
-    maxSteps?: number;
-    maxTokens?: number;
-  } = await req.json();
+const requestSchema = z.object({
+  messages: z.array(z.any()),
+  maxSteps: z.number().int().min(1).max(20).optional(),
+  maxTokens: z.number().int().min(500).max(16000).optional(),
+});
 
-  const steps = Math.min(Math.max(maxSteps ?? 8, 1), 20);
-  const tokens = Math.min(Math.max(maxTokens ?? 4000, 500), 16000);
+/**
+ * Filter empty text content blocks that cause Anthropic API errors.
+ * The AI SDK types don't account for this edge case, so we use a
+ * targeted type assertion on the content array only.
+ */
+function filterEmptyTextParts(msgs: ModelMessage[]): ModelMessage[] {
+  for (const msg of msgs) {
+    if (Array.isArray(msg.content)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parts = msg.content as any[];
+      const filtered = parts.filter(
+        (part: { type: string; text?: string }) =>
+          !(part.type === "text" && part.text === "")
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (msg as any).content = filtered;
+    }
+  }
+  return msgs.filter(
+    (msg) => !Array.isArray(msg.content) || msg.content.length > 0
+  );
+}
+
+export async function POST(req: Request) {
+  const body = requestSchema.parse(await req.json());
+  const messages = body.messages as UIMessage[];
+  const steps = body.maxSteps ?? 8;
+  const tokens = body.maxTokens ?? 4000;
 
   const stream = createUIMessageStream({
     execute: async ({ writer }) => {
       const modelMessages = await convertToModelMessages(messages);
-
-      // Filter empty text content blocks that cause API errors
-      for (const msg of modelMessages) {
-        if (Array.isArray(msg.content)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (msg as any).content = (msg.content as any[]).filter(
-            (part: { type: string; text?: string }) =>
-              !(part.type === "text" && part.text === "")
-          );
-        }
-      }
-      const filteredMessages = modelMessages.filter(
-        (msg) => !Array.isArray(msg.content) || msg.content.length > 0
-      );
+      const filteredMessages = filterEmptyTextParts(modelMessages);
 
       const model = wrapLanguageModel({
         model: gateway("anthropic/claude-sonnet-4"),
@@ -55,6 +69,12 @@ export async function POST(req: Request) {
         stopWhen: stepCountIs(steps),
         maxOutputTokens: tokens,
         messages: filteredMessages,
+        onFinish({ finishReason }) {
+          writer.write({
+            type: "data-step-status" as `data-${string}`,
+            data: { finishReason, maxSteps: steps },
+          });
+        },
       });
 
       // Pipe through json-render transform — extracts ```spec fences as data parts

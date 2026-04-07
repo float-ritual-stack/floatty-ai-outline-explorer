@@ -63,7 +63,8 @@ export const qmdSearchTool = tool({
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "QMD search failed";
-      return { total: 0, hits: [], error: message };
+      const timedOut = message.includes("TIMEOUT") || message.includes("timed out");
+      return { total: 0, hits: [], error: message, query, collection: collection ?? null, timedOut };
     }
   },
 });

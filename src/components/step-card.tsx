@@ -7,14 +7,21 @@ const toolColors: Record<string, string> = {
   search_blocks: colors.amber,
   get_inbound: colors.purple,
   suggest_walks: colors.green,
+  get_block: colors.green,
+  qmd_search: colors.coral,
 };
 
 function formatOutput(output: unknown): string {
   if (typeof output !== "object" || output === null) return "done";
   const o = output as Record<string, unknown>;
-  if ("error" in o) return String(o.error);
+  if ("error" in o) return `error: ${String(o.error).slice(0, 60)}`;
+  if ("hits" in o && Array.isArray(o.hits) && o.hits.length > 0)
+    return `${o.hits.length} docs`;
   if ("total" in o) return `${o.total} results`;
+  if ("treeBlockCount" in o) return `${o.treeBlockCount} blocks`;
   if ("blockCount" in o) return `${o.blockCount} blocks`;
+  if ("suggested" in o && Array.isArray(o.suggested))
+    return `${o.suggested.length} suggestions`;
   return "done";
 }
 
