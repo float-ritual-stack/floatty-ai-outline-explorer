@@ -49,12 +49,14 @@ export function SearchView({
             >
               {isSel ? <CheckSquare size={10} /> : <Square size={10} />}
             </span>
-            <span
-              className="text-[8px] w-5 mt-0.5 uppercase"
-              style={{ color: getTypeColor(h.metadata?.markers?.[0]?.markerType ?? "text") }}
-            >
-              {/* type not in SearchHit, use first marker as hint */}
-            </span>
+            {h.blockType && (
+              <span
+                className="text-[8px] w-6 mt-0.5 uppercase shrink-0"
+                style={{ color: getTypeColor(h.blockType) }}
+              >
+                {h.blockType}
+              </span>
+            )}
             <span
               onClick={() => onNavigate(h.blockId)}
               className="text-text flex-1 cursor-pointer break-words"

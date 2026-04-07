@@ -7,6 +7,7 @@ export function usePages() {
   const [pages, setPages] = useState<PageListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [blockCount, setBlockCount] = useState(0);
+  const [ctxCount, setCtxCount] = useState(0);
 
   useEffect(() => {
     fetch("/api/topology")
@@ -18,19 +19,20 @@ export function usePages() {
         const items: PageListItem[] = topo.n
           .map((node) => ({
             name: node.id,
-            blockId: null as string | null, // resolved via pages/search when needed
+            blockId: node.bid ?? null,
             blockCount: node.b,
             isStub: false,
           }))
           .sort((a, b) => b.blockCount - a.blockCount);
         setPages(items);
         setBlockCount(topo.meta.blocks);
+        setCtxCount(topo.daily.reduce((s, d) => s + d.n, 0));
       })
       .catch((e) => console.error("Topology fetch error:", e))
       .finally(() => setLoading(false));
   }, []);
 
-  return { pages, loading, blockCount };
+  return { pages, loading, blockCount, ctxCount };
 }
 
 export function usePageFilter(pages: PageListItem[], filter: string) {

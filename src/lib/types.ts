@@ -51,6 +51,7 @@ export interface SearchHit {
   snippet: string | null;
   breadcrumb?: string[];
   metadata?: BlockMetadata;
+  blockType?: string;
 }
 
 export interface SearchResponse {
@@ -87,6 +88,7 @@ export interface TopologyNode {
   rc: number;
   orp: number;
   ref: number;
+  bid?: string; // block UUID (if page exists, not ref-only)
 }
 
 export interface TopologyResponse {

@@ -2,8 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Square, CheckSquare } from "lucide-react";
-import { truncate, formatDate, getProject, getProjectColor } from "@/lib/constants";
+import { truncate, getProject, getProjectColor } from "@/lib/constants";
 import type { SearchHit } from "@/lib/types";
+
+function parseCtxDate(content: string): string {
+  const m = content.match(/^ctx::(\d{4}-\d{2}-\d{2})/);
+  return m ? m[1] : "";
+}
 
 interface TimelineViewProps {
   selectedIds: Set<string>;
@@ -52,6 +57,9 @@ export function TimelineView({
               }`}
             >
               {isSel ? <CheckSquare size={9} /> : <Square size={9} />}
+            </span>
+            <span className="text-dim text-[9px] w-16 shrink-0">
+              {parseCtxDate(hit.content ?? "")}
             </span>
             <span
               onClick={() => onNavigate(hit.blockId)}

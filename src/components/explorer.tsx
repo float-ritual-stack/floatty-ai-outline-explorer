@@ -12,7 +12,7 @@ import { BlockFocus } from "./block-focus";
 import { AiPanel } from "./ai-panel";
 
 export function Explorer() {
-  const { pages, loading: pagesLoading, blockCount } = usePages();
+  const { pages, loading: pagesLoading, blockCount, ctxCount } = usePages();
 
   const [view, setView] = useState<ViewMode>("pages");
   const [focusBlockId, setFocusBlockId] = useState<string | null>(null);
@@ -96,7 +96,7 @@ export function Explorer() {
               setFocusBlockId(null);
             }}
             pageCount={pages.length}
-            ctxCount={0}
+            ctxCount={ctxCount}
           />
 
           <div className="flex-1 overflow-y-auto">

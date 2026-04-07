@@ -50,10 +50,10 @@ export function AiPanel({
 
   function buildContextMessage(taskPrompt: string): string {
     if (pageContextId) {
-      return `I'm looking at block ${pageContextId} in the floatty knowledge graph.\n\nPlease use the expand_page or search_blocks tools to gather context about this block, then:\n\n${taskPrompt}`;
+      return `I'm looking at block ID "${pageContextId}" in the floatty knowledge graph.\n\nFirst, use the get_block tool with this block ID to fetch its content and subtree. Then:\n\n${taskPrompt}`;
     }
     if (selectedIds.length > 0) {
-      return `I've selected ${selectedIds.length} blocks: ${selectedIds.join(", ")}\n\nPlease use search_blocks to find context about these, then:\n\n${taskPrompt}`;
+      return `I've selected ${selectedIds.length} blocks in the floatty knowledge graph.\n\nFirst, use the get_block tool to fetch each of these block IDs: ${selectedIds.join(", ")}\n\nThen:\n\n${taskPrompt}`;
     }
     return taskPrompt;
   }
@@ -71,6 +71,13 @@ export function AiPanel({
     const msg = buildContextMessage(input);
     sendMessage({ text: msg });
     setInput("");
+  }
+
+  function handleWalkTo(pageTitle: string) {
+    // Continue the conversation — don't reset context
+    sendMessage({
+      text: `Now walk to the page "${pageTitle}". Use expand_page to fetch its subtree, then continue your analysis from where you left off. What connections do you see between this page and what we were just looking at?`,
+    });
   }
 
   // Extract walk suggestions from the latest suggest_walks tool call
@@ -206,7 +213,7 @@ export function AiPanel({
                 <WalkChip
                   key={w}
                   title={w}
-                  onClick={() => onNavigateToPage(w)}
+                  onClick={() => handleWalkTo(w)}
                 />
               ))}
             </div>

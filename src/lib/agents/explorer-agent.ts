@@ -3,6 +3,7 @@ import { expandPageTool } from "../tools/expand-page";
 import { searchBlocksTool } from "../tools/search-blocks";
 import { getInboundTool } from "../tools/get-inbound";
 import { suggestWalksTool } from "../tools/suggest-walks";
+import { getBlockTool } from "../tools/get-block";
 
 const GRAPH_PREAMBLE = `You are analyzing nodes in a 21,000+ block knowledge graph called floatty — a terminal outliner used as a cognitive prosthetic.
 
@@ -18,6 +19,7 @@ GRAPH VOCABULARY:
 When you see "render:: agent seven sluts float into a hot tub" that's someone typing a creative prompt to a render agent, not pipeline corruption.
 
 You have tools to explore the graph:
+- get_block: fetch a specific block by UUID (use when given a block ID)
 - expand_page: fetch a page's full subtree by title
 - search_blocks: full-text search across all blocks
 - get_inbound: find blocks that link TO a target via [[wikilinks]]
@@ -30,6 +32,7 @@ export const explorerAgent = new ToolLoopAgent({
   model: "anthropic/claude-sonnet-4",
   instructions: GRAPH_PREAMBLE,
   tools: {
+    get_block: getBlockTool,
     expand_page: expandPageTool,
     search_blocks: searchBlocksTool,
     get_inbound: getInboundTool,
