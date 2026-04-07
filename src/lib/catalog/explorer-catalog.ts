@@ -330,6 +330,8 @@ export const explorerCatalog = defineCatalog(schema, {
               docId: z.string().optional().describe("Source document ID"),
               confidence: z
                 .number()
+                .min(0)
+                .max(1)
                 .optional()
                 .describe("Confidence score 0-1"),
               lines: z

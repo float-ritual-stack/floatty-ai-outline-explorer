@@ -29,6 +29,9 @@ export async function POST(req: Request) {
           );
         }
       }
+      const filteredMessages = modelMessages.filter(
+        (msg) => !Array.isArray(msg.content) || msg.content.length > 0
+      );
 
       const result = streamText({
         model: "anthropic/claude-sonnet-4",
@@ -36,7 +39,7 @@ export async function POST(req: Request) {
         tools: EXPLORER_TOOLS,
         stopWhen: stepCountIs(5),
         maxOutputTokens: 4000,
-        messages: modelMessages,
+        messages: filteredMessages,
       });
 
       // Pipe through json-render transform — extracts ```spec fences as data parts

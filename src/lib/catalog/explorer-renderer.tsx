@@ -251,7 +251,7 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
           </span>
           <div className="flex-1 h-px" style={{ backgroundColor: `${c}20` }} />
         </div>
-        {children}
+        <div className="flex flex-wrap gap-1.5">{children}</div>
       </div>
     );
   },
@@ -338,13 +338,13 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
     const c = resolveColor(element.props.color);
     return (
       <div
-        className="flex flex-col items-center px-3 py-1.5 rounded"
+        className="inline-flex flex-col items-center px-2.5 py-1 rounded"
         style={{ backgroundColor: `${c}08`, border: `1px solid ${c}15` }}
       >
-        <span className="text-[16px] font-bold font-mono" style={{ color: c }}>
+        <span className="text-[13px] font-bold font-mono leading-tight" style={{ color: c }}>
           {element.props.value}
         </span>
-        <span className="text-[8px] font-mono uppercase tracking-wide" style={{ color: colors.dim }}>
+        <span className="text-[7px] font-mono uppercase tracking-wide leading-tight" style={{ color: colors.dim }}>
           {element.props.label}
         </span>
       </div>
@@ -697,8 +697,8 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
   },
 
   TimelineDiff: ({ element }) => {
-    const before = element.props.before;
-    const after = element.props.after;
+    const before = element.props.before ?? { date: "", items: [] };
+    const after = element.props.after ?? { date: "", items: [] };
     return (
       <div className="grid bg-surface rounded-md overflow-hidden" style={{ gridTemplateColumns: "1fr 20px 1fr", border: `1px solid ${colors.border}` }}>
         <div className="p-1.5" style={{ borderBottom: `1px solid ${colors.border}`, backgroundColor: colors.coral + "08" }}>
@@ -715,7 +715,7 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
         <div className="p-1.5">
           {before.items.map((item: { text: string; removed?: boolean }, i: number) => (
             <div key={i} className="px-1.5 py-0.5 text-[10px] font-mono mb-0.5" style={{
-              color: item.removed ? colors.muted : colors.muted,
+              color: colors.muted,
               backgroundColor: item.removed ? colors.coral + "10" : "transparent",
               textDecoration: item.removed ? "line-through" : "none",
               borderLeft: item.removed ? `2px solid ${colors.coral}40` : "2px solid transparent",

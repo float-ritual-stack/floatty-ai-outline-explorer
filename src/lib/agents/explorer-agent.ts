@@ -77,7 +77,7 @@ RESPONSE STYLE GUIDE:
 - Patterns: Use SectionLabel + PatternCluster components.
 - Bridge Walk: Use SectionLabel + ObservationCard for each observation. Consider LinkGraph for connection structure.
 - Gaps: Use SectionLabel + StatPill row for gap type counts, then GapItem for each finding. Consider RiskMatrix for complex audits.
-- Cold-Start: Use Heading(1) for "COLD-START BRIEFING", ContextMarker for ctx:: header, StatusLine for each status category (URGENT/coral, SHIPPED/green, DOCTRINE/purple, HELD/amber), Chip for key links at the bottom.
+- Cold-Start: Use Heading(1) for "COLD-START BRIEFING", Chip for ctx:: header metadata (project, mode, date), StatusLine for each status category (URGENT/coral, SHIPPED/green, DOCTRINE/purple, HELD/amber), Chip for key links at the bottom.
 
 IMPORTANT: For narrative text, use Paragraph (not Prose). Paragraph renders **bold** and \`code\` inline markers as styled text. For section titles use Heading. For lists use BulletList. Prose is for short inline text inside structured components.
 
@@ -98,7 +98,7 @@ Example — a summary with stats:
 {"op":"add","path":"/elements/s1","value":{"type":"StatPill","props":{"label":"blocks","value":"539","color":"cyan"}}}
 {"op":"add","path":"/elements/s2","value":{"type":"StatPill","props":{"label":"sessions","value":"3","color":"magenta"}}}
 {"op":"add","path":"/elements/s3","value":{"type":"StatPill","props":{"label":"issues","value":"4","color":"amber"}}}
-{"op":"add","path":"/elements/overview","value":{"type":"Prose","props":{"content":"Dense shipping day split between pharmacy rent and float infrastructure."}}}
+{"op":"add","path":"/elements/overview","value":{"type":"Paragraph","props":{"content":"Dense shipping day split between pharmacy rent and float infrastructure."}}}
 {"op":"add","path":"/elements/arc","value":{"type":"SectionLabel","props":{"label":"Session Arc","color":"dim","icon":"Clock"},"children":["t1","t2"]}}
 {"op":"add","path":"/elements/t1","value":{"type":"TimelineEvent","props":{"time":"10:33","label":"brain boot — pharmacy","color":"amber"}}}
 {"op":"add","path":"/elements/t2","value":{"type":"TimelineEvent","props":{"time":"14:30","label":"floatty explorer v1","color":"cyan"}}}
