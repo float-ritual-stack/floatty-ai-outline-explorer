@@ -6,8 +6,8 @@ import { DefaultChatTransport, isToolUIPart, getToolName } from "ai";
 import { Sparkles, X, Send, Loader, Compass } from "lucide-react";
 import type { ExplorerUIMessage } from "@/lib/agents/explorer-agent";
 import { AiActions, AI_ACTIONS, type AiAction } from "./ai-actions";
-import { StepCard } from "./step-card";
 import { WalkChip } from "./walk-chip";
+import { MessageBubble } from "./message-bubble";
 
 interface AiPanelProps {
   selectedIds: string[];
@@ -153,46 +153,7 @@ export function AiPanel({
         {messages
           .filter((m) => m.role === "assistant")
           .map((msg) => (
-            <div key={msg.id} className="mb-4">
-              {msg.parts.map((part, i) => {
-                if (part.type === "text") {
-                  return (
-                    <div
-                      key={i}
-                      className="text-text text-[12px] leading-relaxed whitespace-pre-wrap break-words"
-                    >
-                      {part.text}
-                    </div>
-                  );
-                }
-
-                if (isToolUIPart(part)) {
-                  // Don't render suggest_walks as a step card
-                  if (getToolName(part) === "suggest_walks") return null;
-
-                  return (
-                    <StepCard
-                      key={part.toolCallId}
-                      toolName={getToolName(part)}
-                      state={part.state}
-                      input={
-                        part.state === "input-available" ||
-                        part.state === "output-available"
-                          ? (part.input as Record<string, unknown>)
-                          : undefined
-                      }
-                      output={
-                        part.state === "output-available"
-                          ? part.output
-                          : undefined
-                      }
-                    />
-                  );
-                }
-
-                return null;
-              })}
-            </div>
+            <MessageBubble key={msg.id} message={msg} />
           ))}
 
         {isLoading && (

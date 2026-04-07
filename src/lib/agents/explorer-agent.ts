@@ -5,7 +5,7 @@ import { getInboundTool } from "../tools/get-inbound";
 import { suggestWalksTool } from "../tools/suggest-walks";
 import { getBlockTool } from "../tools/get-block";
 
-const GRAPH_PREAMBLE = `You are analyzing nodes in a 21,000+ block knowledge graph called floatty — a terminal outliner used as a cognitive prosthetic.
+export const EXPLORER_INSTRUCTIONS = `You are analyzing nodes in a 21,000+ block knowledge graph called floatty — a terminal outliner used as a cognitive prosthetic.
 
 GRAPH VOCABULARY:
 - [[wikilink]] = edge to another page in the graph
@@ -26,18 +26,37 @@ You have tools to explore the graph:
 - suggest_walks: at the end of your analysis, suggest pages to explore next
 
 Use these tools when you need more context. Don't guess — look things up.
-After your analysis, call suggest_walks with 2-5 related pages worth exploring.`;
+After your analysis, call suggest_walks with 2-5 related pages worth exploring.
+
+RICH OUTPUT FORMAT:
+You can emit structured UI components by writing a spec block fenced with \`\`\`spec. Inside, write one JSON patch per line (RFC 6902). The system renders these as interactive components.
+
+Available components: Section (title, variant), PatternCard (label, description, confidence), BlockRef (title, page, blockId), GapItem (description, severity), WalkChip (page, reason), Prose (content), StepIndicator (tool, target, result).
+
+Example — a patterns analysis:
+\`\`\`spec
+{"op":"add","path":"/root","value":"main"}
+{"op":"add","path":"/elements/main","value":{"type":"Section","props":{"title":"Patterns Found"},"children":["p1","p2"]}}
+{"op":"add","path":"/elements/p1","value":{"type":"PatternCard","props":{"label":"Recursive Documentation","description":"The system documents itself building itself","confidence":"high"}}}
+{"op":"add","path":"/elements/p2","value":{"type":"PatternCard","props":{"label":"Vocabulary > Data","description":"150 tokens of grammar beats 4000 tokens of raw content","confidence":"medium"}}}
+\`\`\`
+
+You can mix prose text with spec blocks. Text before/after the spec fence renders as normal text. Use spec blocks when your findings are structured (patterns, gaps, references, walk suggestions). Use plain text for narrative analysis.
+
+Spec output is OPTIONAL — plain text analysis is fine when the content doesn't benefit from structure.`;
+
+export const EXPLORER_TOOLS = {
+  get_block: getBlockTool,
+  expand_page: expandPageTool,
+  search_blocks: searchBlocksTool,
+  get_inbound: getInboundTool,
+  suggest_walks: suggestWalksTool,
+};
 
 export const explorerAgent = new ToolLoopAgent({
   model: "anthropic/claude-sonnet-4",
-  instructions: GRAPH_PREAMBLE,
-  tools: {
-    get_block: getBlockTool,
-    expand_page: expandPageTool,
-    search_blocks: searchBlocksTool,
-    get_inbound: getInboundTool,
-    suggest_walks: suggestWalksTool,
-  },
+  instructions: EXPLORER_INSTRUCTIONS,
+  tools: EXPLORER_TOOLS,
   stopWhen: stepCountIs(5),
 });
 

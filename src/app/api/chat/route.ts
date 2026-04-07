@@ -1,11 +1,37 @@
-import { createAgentUIStreamResponse } from "ai";
-import { explorerAgent } from "@/lib/agents/explorer-agent";
+import {
+  streamText,
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  stepCountIs,
+  type UIMessage,
+} from "ai";
+import { pipeJsonRender } from "@json-render/core";
+import {
+  EXPLORER_INSTRUCTIONS,
+  EXPLORER_TOOLS,
+} from "@/lib/agents/explorer-agent";
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages }: { messages: UIMessage[] } = await req.json();
 
-  return createAgentUIStreamResponse({
-    agent: explorerAgent,
-    uiMessages: messages,
+  const stream = createUIMessageStream({
+    execute: async ({ writer }) => {
+      const modelMessages = await convertToModelMessages(messages);
+
+      const result = streamText({
+        model: "anthropic/claude-sonnet-4",
+        system: EXPLORER_INSTRUCTIONS,
+        tools: EXPLORER_TOOLS,
+        stopWhen: stepCountIs(5),
+        maxOutputTokens: 4000,
+        messages: modelMessages,
+      });
+
+      // Pipe through json-render transform — extracts ```spec fences as data parts
+      writer.merge(pipeJsonRender(result.toUIMessageStream()));
+    },
   });
+
+  return createUIMessageStreamResponse({ stream });
 }

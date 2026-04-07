@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.151",
+    "@json-render/core": "^0.16.0",
+    "@json-render/react": "^0.16.0",
     "ai": "^6.0.149",
     "lucide-react": "^1.7.0",
     "next": "16.2.2",
