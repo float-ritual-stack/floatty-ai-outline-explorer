@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../../node_modules/streamdown/dist/*.js";
 
 :root {
   --color-bg: #0d0d0d;
@@ -60,6 +61,40 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-dim);
+}
+
+/* Streamdown text sizing to match our theme */
+.sdm-markdown {
+  font-size: 12px;
+  line-height: 1.5;
+  font-family: var(--font-mono);
+}
+.sdm-markdown p {
+  margin: 0.25em 0;
+}
+.sdm-markdown h1 { font-size: 14px; }
+.sdm-markdown h2 { font-size: 13px; }
+.sdm-markdown h3 { font-size: 12px; }
+.sdm-markdown pre {
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.sdm-markdown code:not(pre code) {
+  font-size: 11px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--color-surface2);
+  color: var(--color-cyan);
+}
+.sdm-markdown ul, .sdm-markdown ol {
+  padding-left: 1.2em;
+  margin: 0.25em 0;
+}
+.sdm-markdown li {
+  margin: 0.1em 0;
 }
 
 /* Spinner animation for loading states */

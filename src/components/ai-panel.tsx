@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, isToolUIPart, getToolName } from "ai";
-import { Sparkles, X, Send, Loader, Compass } from "lucide-react";
+import { Sparkles, X, Send, Loader, Compass, Settings, PlayCircle } from "lucide-react";
 import type { ExplorerUIMessage } from "@/lib/agents/explorer-agent";
 import { AiActions, AI_ACTIONS, type AiAction } from "./ai-actions";
 import { WalkChip } from "./walk-chip";
@@ -24,12 +24,23 @@ export function AiPanel({
 }: AiPanelProps) {
   const [input, setInput] = useState("");
   const [activeAction, setActiveAction] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [maxSteps, setMaxSteps] = useState(8);
+  const [maxTokens, setMaxTokens] = useState(4000);
+  const [streamSpec, setStreamSpec] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        body: { maxSteps, maxTokens },
+      }),
+    [maxSteps, maxTokens]
+  );
+
   const { messages, sendMessage, status, setMessages } =
-    useChat<ExplorerUIMessage>({
-      transport: new DefaultChatTransport({ api: "/api/chat" }),
-    });
+    useChat<ExplorerUIMessage>({ transport });
 
   // Reset when context changes
   const contextKey = pageContextId || selectedIds.join(",");
@@ -93,6 +104,23 @@ export function AiPanel({
     });
   }
 
+  // Detect if the agent hit the step limit (last message ends with tool calls, not text)
+  const hitStepLimit = useMemo(() => {
+    if (status !== "ready" || messages.length === 0) return false;
+    const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+    if (!lastAssistant) return false;
+    const parts = lastAssistant.parts;
+    if (parts.length === 0) return false;
+    const lastPart = parts[parts.length - 1];
+    return isToolUIPart(lastPart);
+  }, [messages, status]);
+
+  function handleContinue() {
+    sendMessage({
+      text: "Continue your analysis from where you left off. You were cut off by the step limit.",
+    });
+  }
+
   // Extract walk suggestions from the latest suggest_walks tool call
   const walkSuggestions = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -124,12 +152,56 @@ export function AiPanel({
           {noContent ? "select content" : pageContextId ? "page context" : `${selectedIds.length} selected`}
         </span>
         <button
+          onClick={() => setShowSettings(!showSettings)}
+          className={`bg-transparent border-none cursor-pointer transition-colors ${showSettings ? "text-cyan" : "text-muted hover:text-text"}`}
+        >
+          <Settings size={12} />
+        </button>
+        <button
           onClick={onClose}
           className="bg-transparent border-none text-muted cursor-pointer hover:text-text transition-colors"
         >
           <X size={13} />
         </button>
       </div>
+
+      {/* Settings */}
+      {showSettings && (
+        <div className="flex items-center gap-3 px-3 py-1.5 border-b border-border text-[10px] font-mono bg-bg">
+          <label className="flex items-center gap-1 text-muted">
+            steps
+            <input
+              type="number"
+              min={1}
+              max={20}
+              value={maxSteps}
+              onChange={(e) => setMaxSteps(Number(e.target.value))}
+              className="w-10 px-1 py-0.5 bg-surface border border-border text-text text-[10px] rounded outline-none text-center"
+            />
+          </label>
+          <label className="flex items-center gap-1 text-muted">
+            tokens
+            <input
+              type="number"
+              min={500}
+              max={16000}
+              step={500}
+              value={maxTokens}
+              onChange={(e) => setMaxTokens(Number(e.target.value))}
+              className="w-14 px-1 py-0.5 bg-surface border border-border text-text text-[10px] rounded outline-none text-center"
+            />
+          </label>
+          <label className="flex items-center gap-1 text-muted cursor-pointer">
+            <input
+              type="checkbox"
+              checked={streamSpec}
+              onChange={(e) => setStreamSpec(e.target.checked)}
+              className="accent-cyan"
+            />
+            stream spec
+          </label>
+        </div>
+      )}
 
       {/* Actions */}
       <AiActions
@@ -165,8 +237,14 @@ export function AiPanel({
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-2.5">
         {messages
           .filter((m) => m.role === "assistant")
-          .map((msg) => (
-            <MessageBubble key={msg.id} message={msg} onNavigateToPage={onNavigateToPage} />
+          .map((msg, i, arr) => (
+            <MessageBubble
+              key={msg.id}
+              message={msg}
+              onNavigateToPage={onNavigateToPage}
+              isStreaming={isLoading && i === arr.length - 1}
+              streamSpec={streamSpec}
+            />
           ))}
 
         {isLoading && (
@@ -174,6 +252,17 @@ export function AiPanel({
             <Loader size={14} className="animate-spin-slow" />
             thinking&hellip;
           </div>
+        )}
+
+        {/* Step limit reached — continue button */}
+        {hitStepLimit && !isLoading && (
+          <button
+            onClick={handleContinue}
+            className="flex items-center gap-1.5 w-full px-3 py-2 mt-2 bg-amber/8 border border-amber/20 text-amber text-[11px] font-mono rounded cursor-pointer hover:bg-amber/15 transition-colors"
+          >
+            <PlayCircle size={13} />
+            reached max steps — click to continue
+          </button>
         )}
 
         {/* Walk suggestions */}

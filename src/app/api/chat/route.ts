@@ -13,7 +13,14 @@ import {
 } from "@/lib/agents/explorer-agent";
 
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const { messages, maxSteps, maxTokens }: {
+    messages: UIMessage[];
+    maxSteps?: number;
+    maxTokens?: number;
+  } = await req.json();
+
+  const steps = Math.min(Math.max(maxSteps ?? 8, 1), 20);
+  const tokens = Math.min(Math.max(maxTokens ?? 4000, 500), 16000);
 
   const stream = createUIMessageStream({
     execute: async ({ writer }) => {
@@ -37,8 +44,8 @@ export async function POST(req: Request) {
         model: "anthropic/claude-sonnet-4",
         system: EXPLORER_INSTRUCTIONS,
         tools: EXPLORER_TOOLS,
-        stopWhen: stepCountIs(5),
-        maxOutputTokens: 4000,
+        stopWhen: stepCountIs(steps),
+        maxOutputTokens: tokens,
         messages: filteredMessages,
       });
 

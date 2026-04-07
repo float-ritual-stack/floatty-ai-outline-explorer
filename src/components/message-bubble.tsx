@@ -3,8 +3,12 @@
 import { Component, type ReactNode } from "react";
 import { useJsonRenderMessage } from "@json-render/react";
 import { isToolUIPart, getToolName } from "ai";
+import { Streamdown } from "streamdown";
+import { code } from "@streamdown/code";
 import { ExplorerRenderer } from "@/lib/catalog/explorer-renderer";
 import { StepCard } from "./step-card";
+
+const streamdownPlugins = { code };
 
 class SpecErrorBoundary extends Component<
   { children: ReactNode; fallback?: string },
@@ -33,9 +37,11 @@ class SpecErrorBoundary extends Component<
 interface MessageBubbleProps {
   message: { id: string; role: string; parts: unknown[] };
   onNavigateToPage?: (title: string) => void;
+  isStreaming?: boolean;
+  streamSpec?: boolean;
 }
 
-export function MessageBubble({ message, onNavigateToPage }: MessageBubbleProps) {
+export function MessageBubble({ message, onNavigateToPage, isStreaming, streamSpec }: MessageBubbleProps) {
   // Extract spec and text from message parts
   const { spec, text, hasSpec } = useJsonRenderMessage(
     message.parts as Parameters<typeof useJsonRenderMessage>[0]
@@ -70,9 +76,12 @@ export function MessageBubble({ message, onNavigateToPage }: MessageBubbleProps)
 
       {/* Text content (after spec extraction — only the non-spec text remains) */}
       {text && (
-        <div className="text-text text-[12px] leading-relaxed whitespace-pre-wrap break-words">
+        <Streamdown
+          plugins={streamdownPlugins}
+          isAnimating={isStreaming}
+        >
           {text}
-        </div>
+        </Streamdown>
       )}
 
       {/* Rendered spec (if the AI emitted one) */}
@@ -90,9 +99,15 @@ export function MessageBubble({ message, onNavigateToPage }: MessageBubbleProps)
             if (page?.dataset.page) { onNavigateToPage(page.dataset.page); return; }
           }}
         >
-          <SpecErrorBoundary fallback={text ?? undefined}>
-            <ExplorerRenderer spec={spec} />
-          </SpecErrorBoundary>
+          {isStreaming && !streamSpec ? (
+            <div className="text-dim text-[10px] font-mono py-2 animate-pulse">
+              rendering structured output&hellip;
+            </div>
+          ) : (
+            <SpecErrorBoundary fallback={text ?? undefined}>
+              <ExplorerRenderer spec={spec} />
+            </SpecErrorBoundary>
+          )}
         </div>
       )}
     </div>
