@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #0d0d0d;
+  --color-surface: #141414;
+  --color-surface2: #1a1a1a;
+  --color-hover: #222222;
+  --color-border: #2a2a2a;
+  --color-text: #c9d1d9;
+  --color-muted: #6e7681;
+  --color-dim: #484f58;
+  --color-cyan: #00e5ff;
+  --color-magenta: #e040a0;
+  --color-coral: #ff6b6b;
+  --color-amber: #ffb300;
+  --color-green: #98c379;
+  --color-purple: #c678dd;
+  --color-red: #ff4444;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface2: var(--color-surface2);
+  --color-hover: var(--color-hover);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-muted: var(--color-muted);
+  --color-dim: var(--color-dim);
+  --color-cyan: var(--color-cyan);
+  --color-magenta: var(--color-magenta);
+  --color-coral: var(--color-coral);
+  --color-amber: var(--color-amber);
+  --color-green: var(--color-green);
+  --color-purple: var(--color-purple);
+  --color-red: var(--color-red);
+  --font-mono: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
+
+/* Scrollbar styling for the dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-dim);
+}
+
+/* Spinner animation for loading states */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 1s linear infinite;
+}
