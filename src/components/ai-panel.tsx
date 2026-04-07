@@ -42,13 +42,6 @@ export function AiPanel({
   const { messages, sendMessage, status, setMessages } =
     useChat<ExplorerUIMessage>({ transport });
 
-  // Reset when context changes
-  const contextKey = pageContextId || selectedIds.join(",");
-  useEffect(() => {
-    setMessages([]);
-    setActiveAction(null);
-  }, [contextKey, setMessages]);
-
   // Auto-scroll on new content
   useEffect(() => {
     if (scrollRef.current) {

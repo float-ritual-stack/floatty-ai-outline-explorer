@@ -15,11 +15,14 @@ function requireEnv(name: string): string {
   return value;
 }
 
-const FLOATTY_URL = process.env.FLOATTY_URL ?? "https://floatty.ngrok.app";
+function getFloattyUrl(): string {
+  return requireEnv("FLOATTY_URL");
+}
+
 const FLOATTY_API_KEY = requireEnv("FLOATTY_API_KEY");
 
 async function floattyFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${FLOATTY_URL}${path}`, {
+  const res = await fetch(`${getFloattyUrl()}${path}`, {
     ...init,
     headers: {
       Authorization: `Bearer ${FLOATTY_API_KEY}`,

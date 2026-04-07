@@ -29,21 +29,18 @@ const requestSchema = z.object({
  * targeted type assertion on the content array only.
  */
 function filterEmptyTextParts(msgs: ModelMessage[]): ModelMessage[] {
-  for (const msg of msgs) {
-    if (Array.isArray(msg.content)) {
+  return msgs
+    .map((msg) => {
+      if (!Array.isArray(msg.content)) return msg;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const parts = msg.content as any[];
-      const filtered = parts.filter(
+      const filtered = (msg.content as any[]).filter(
         (part: { type: string; text?: string }) =>
           !(part.type === "text" && part.text === "")
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (msg as any).content = filtered;
-    }
-  }
-  return msgs.filter(
-    (msg) => !Array.isArray(msg.content) || msg.content.length > 0
-  );
+      return filtered.length > 0 ? ({ ...msg, content: filtered } as any) : null;
+    })
+    .filter((msg): msg is ModelMessage => msg !== null);
 }
 
 export async function POST(req: Request) {

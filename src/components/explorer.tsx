@@ -10,6 +10,7 @@ import { SearchView } from "./search-view";
 import { TimelineView } from "./timeline-view";
 import { BlockFocus } from "./block-focus";
 import { AiPanel } from "./ai-panel";
+import { ViewErrorBoundary } from "./view-error-boundary";
 
 export function Explorer() {
   const { pages, loading: pagesLoading, blockCount, ctxCount } = usePages();
@@ -48,7 +49,6 @@ export function Explorer() {
 
   const navigateToPageByTitle = useCallback(
     async (title: string) => {
-      // Resolve page title to block ID via the pages API
       try {
         const res = await fetch(
           `/api/pages?prefix=${encodeURIComponent(title)}&limit=3`
@@ -57,13 +57,18 @@ export function Explorer() {
         const data = await res.json();
         const pages = (data.pages ?? []) as { name: string; blockId: string | null }[];
         const lTitle = title.toLowerCase();
+
         const exact = pages.find((p) => p.name.toLowerCase() === lTitle);
-        const prefix = pages.find((p) => !exact && p.name.toLowerCase().startsWith(lTitle));
+        if (exact?.blockId) { setFocusBlockId(exact.blockId); analyzeAi(exact.blockId); return; }
+
+        const prefix = pages.find((p) => p.name.toLowerCase().startsWith(lTitle));
+        if (prefix?.blockId) { setFocusBlockId(prefix.blockId); analyzeAi(prefix.blockId); return; }
+
         const fuzzy = pages.filter((p) => p.name.toLowerCase().includes(lTitle));
-        const match = exact ?? prefix ?? (fuzzy.length === 1 ? fuzzy[0] : null);
-        if (match?.blockId) {
-          setFocusBlockId(match.blockId);
-          analyzeAi(match.blockId);
+        if (fuzzy.length === 1 && fuzzy[0].blockId) { setFocusBlockId(fuzzy[0].blockId); analyzeAi(fuzzy[0].blockId); return; }
+
+        if (fuzzy.length > 1) {
+          console.warn(`navigateToPageByTitle: ambiguous "${title}" → ${fuzzy.map((p) => p.name).join(", ")}`);
         }
       } catch (e) {
         console.error("Page resolve error:", e);
@@ -102,6 +107,7 @@ export function Explorer() {
             ctxCount={ctxCount}
           />
 
+          <ViewErrorBoundary>
           <div className="flex-1 overflow-y-auto">
             {focusBlockId ? (
               <BlockFocus
@@ -146,6 +152,7 @@ export function Explorer() {
               />
             ) : null}
           </div>
+          </ViewErrorBoundary>
         </div>
 
         {/* Right: AI panel */}
@@ -178,6 +185,7 @@ export function Explorer() {
               }}
             />
             <AiPanel
+              key={pageContextId || [...selectedIds].join(",")}
               selectedIds={[...selectedIds]}
               pageContextId={pageContextId}
               onClose={() => {
