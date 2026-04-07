@@ -153,7 +153,12 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
         <div className="flex-1 min-w-0">
           <div className="text-text">{element.props.description}</div>
           {element.props.evidence && (
-            <div className="text-dim text-[10px] mt-0.5">{element.props.evidence}</div>
+            <div
+              className="text-dim text-[9px] font-mono mt-1 pl-2 leading-relaxed"
+              style={{ borderLeft: `2px solid ${cfg?.color ?? sevColor}15` }}
+            >
+              {element.props.evidence}
+            </div>
           )}
         </div>
         {element.props.target && (
@@ -170,11 +175,11 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
 
   WalkChip: ({ element }) => (
     <span
-      className="inline-flex items-center gap-1 bg-purple/10 border border-purple/25 text-purple px-2 py-0.5 rounded text-[11px] cursor-pointer hover:bg-purple/20 transition-colors"
+      className="inline-flex items-center gap-1 bg-purple/10 border border-purple/25 text-purple px-2 py-0.5 rounded text-[11px] cursor-pointer hover:bg-purple/25 hover:border-purple/40 hover:scale-[1.02] transition-all"
       data-walk-page={element.props.page}
       title={element.props.reason}
     >
-      <Compass size={10} />
+      <ArrowRight size={10} />
       {element.props.page}
     </span>
   ),
@@ -300,13 +305,13 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
             <div className="text-text text-[12px] font-mono font-semibold leading-snug">
               {element.props.title}
             </div>
-            <div className="text-muted text-[10px] font-mono mt-0.5 truncate">
+            <div className="text-muted text-[10px] font-mono mt-0.5 truncate observation-preview">
               {element.props.body.slice(0, 80)}{element.props.body.length > 80 ? "\u2026" : ""}
             </div>
           </div>
           <span
             className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded shrink-0"
-            style={{ color: c, backgroundColor: `${c}12`, border: `1px solid ${c}30` }}
+            style={{ color: c, backgroundColor: "transparent", border: `1px solid ${c}30` }}
           >
             {sev}
           </span>
@@ -339,9 +344,9 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
     return (
       <div
         className="inline-flex flex-col items-center px-2.5 py-1 rounded"
-        style={{ backgroundColor: `${c}08`, border: `1px solid ${c}15` }}
+        style={{ backgroundColor: `${c}05`, border: `1px solid ${c}10` }}
       >
-        <span className="text-[13px] font-bold font-mono leading-tight" style={{ color: c }}>
+        <span className="text-[12px] font-medium font-mono leading-tight" style={{ color: c }}>
           {element.props.value}
         </span>
         <span className="text-[7px] font-mono uppercase tracking-wide leading-tight" style={{ color: colors.dim }}>
@@ -416,6 +421,7 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
       get_inbound: colors.purple,
       get_block: colors.green,
       suggest_walks: colors.magenta,
+      qmd_search: colors.coral,
     };
     const c = toolColors[element.props.tool] ?? colors.dim;
     return (
@@ -526,7 +532,7 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
   },
 
   Divider: () => (
-    <hr className="my-3" style={{ borderColor: colors.border, borderTopWidth: 1 }} />
+    <hr className="my-3" style={{ borderColor: `${colors.border}80`, borderTopWidth: 1 }} />
   ),
 
   // ── Rich visualizations ──────────────────────────────────────────

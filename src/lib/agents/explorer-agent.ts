@@ -4,28 +4,46 @@ import { searchBlocksTool } from "../tools/search-blocks";
 import { getInboundTool } from "../tools/get-inbound";
 import { suggestWalksTool } from "../tools/suggest-walks";
 import { getBlockTool } from "../tools/get-block";
+import { qmdSearchTool } from "../tools/qmd-search";
 
 export const EXPLORER_INSTRUCTIONS = `You are analyzing nodes in a 21,000+ block knowledge graph called floatty — a terminal outliner used as a cognitive prosthetic.
 
 GRAPH VOCABULARY:
-- [[wikilink]] = edge to another page in the graph
-- ctx:: = timestamped event marker
-- project:: mode:: type:: = metadata tags
-- sh:: = executable shell command (output appears as child)
-- render:: = trigger for render agent (content after render:: is a PROMPT, not an error or corruption)
-- search:: pick:: = executable query blocks
-- linear:: issue:: = issue tracker links
 
-When you see "render:: agent seven sluts float into a hot tub" that's someone typing a creative prompt to a render agent, not pipeline corruption.
+Block prefixes are executable — they trigger doors/handlers:
+- sh:: = shell command. Output (including errors) appears as child blocks. Errors are EXPECTED output, not failures — the block captures stdout AND stderr.
+- render:: = render agent prompt. Content after render:: is a PROMPT to a render agent, not an error. Output stored in block.output.data (Y.Doc field), NOT visible in content or children. Check outputType === "door" for render results.
+- linear:: = Linear issue fetch. Content appears as children after execution.
+- search:: filter:: pick:: = query blocks. Results appear as children.
+- artifact:: = renders JSX in sandboxed iframe.
+- ctx:: = timestamp/context marker (not executable).
+- project:: mode:: type:: = metadata tags.
+
+Navigation and metadata:
+- [[wikilink]] = edge to another page in the graph (click-navigable in outliner, NOT a broken hyperlink)
+- Outlinks ([[wikilinks]]) are extracted by outlinksHook into block.metadata.outlinks
+- Page HEADER blocks (# Title) are containers — they rarely have outlinks themselves. Check CHILDREN for link data.
+- Markers (project::, mode::, ctx::) extracted into block.metadata.markers
+- Metadata populates asynchronously — newly created blocks may briefly show empty metadata
+
+Common patterns that are NOT bugs:
+- Duplicate pages with "- raw" suffix = intentional raw/clean workflow split
+- sh:: blocks with error output as children = command ran, captured stderr normally
+- render:: blocks with no visible output = output is in Y.Doc output.data field
+- Empty outlinks on page headers = outlinks live on children, not the header itself
+- Inconsistent ctx:: timestamp formats = manual vs automated capture, both valid
+- Creative/profane content in render:: prompts = user prompts to render agent, not corruption
 
 You have tools to explore the graph:
 - get_block: fetch a specific block by UUID (use when given a block ID)
 - expand_page: fetch a page's full subtree by title
 - search_blocks: full-text search across all blocks
 - get_inbound: find blocks that link TO a target via [[wikilinks]]
+- qmd_search: search the external knowledge base (4900+ docs: Linear issues, daily notes, sysops logs, technical writing, patterns, conversation history). Use when you see references to things NOT in the outline — [[FLO-NNN]] issues, decisions, people, patterns, historical context. Collections: linear-issues, bbs-daily, sysops-log, techcraft, patterns, consciousness-tech.
 - suggest_walks: at the end of your analysis, suggest pages to explore next
 
 Use these tools when you need more context. Don't guess — look things up.
+When you encounter [[FLO-NNN]] references or unfamiliar terms, use qmd_search to get context.
 After your analysis, call suggest_walks with 2-5 related pages worth exploring.
 
 RICH OUTPUT FORMAT:
@@ -114,6 +132,7 @@ export const EXPLORER_TOOLS = {
   search_blocks: searchBlocksTool,
   get_inbound: getInboundTool,
   suggest_walks: suggestWalksTool,
+  qmd_search: qmdSearchTool,
 };
 
 export const explorerAgent = new ToolLoopAgent({

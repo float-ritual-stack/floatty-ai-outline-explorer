@@ -62,7 +62,7 @@ interface AiActionsProps {
 
 export function AiActions({ activeAction, disabled, onAction }: AiActionsProps) {
   return (
-    <div className="flex gap-1 flex-wrap p-2 border-b border-border shrink-0">
+    <div className="flex gap-1 flex-wrap p-2 border-b border-border/60 shrink-0">
       {AI_ACTIONS.map((a) => {
         const Icon = a.icon;
         const isActive = activeAction === a.id;
@@ -74,7 +74,7 @@ export function AiActions({ activeAction, disabled, onAction }: AiActionsProps) 
             className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] border cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-default"
             style={{
               background: isActive ? `${a.color}15` : "transparent",
-              borderColor: isActive ? a.color : colors.border,
+              borderColor: isActive ? a.color : `${colors.border}80`,
               color: a.color,
             }}
           >

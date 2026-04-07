@@ -145,7 +145,7 @@ export function AiPanel({
   return (
     <div className="flex flex-col h-full bg-surface">
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border shrink-0">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/60 shrink-0">
         <Sparkles size={14} className="text-magenta" />
         <span className="text-magenta text-[13px] font-bold">AI</span>
         <span className="text-dim text-[10px] ml-auto">
@@ -167,7 +167,7 @@ export function AiPanel({
 
       {/* Settings */}
       {showSettings && (
-        <div className="flex items-center gap-3 px-3 py-1.5 border-b border-border text-[10px] font-mono bg-bg">
+        <div className="flex items-center gap-3 px-3 py-1.5 border-b border-border/40 text-[10px] font-mono bg-bg">
           <label className="flex items-center gap-1 text-muted">
             steps
             <input
@@ -211,7 +211,7 @@ export function AiPanel({
       />
 
       {/* Custom question */}
-      <div className="flex gap-1 p-1.5 border-b border-border shrink-0">
+      <div className="flex gap-1 p-1.5 border-b border-border/60 shrink-0">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -267,8 +267,8 @@ export function AiPanel({
 
         {/* Walk suggestions */}
         {walkSuggestions.length > 0 && !isLoading && (
-          <div className="mt-3 pt-2 border-t border-border">
-            <div className="text-dim text-[10px] uppercase tracking-wider mb-1.5 flex items-center gap-1">
+          <div className="mt-4 pt-3 border-t border-border/40">
+            <div className="text-dim text-[10px] uppercase tracking-wider mb-2 flex items-center gap-1">
               <Compass size={10} /> walk next
             </div>
             <div className="flex gap-1.5 flex-wrap">

@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/devtools": "^0.0.15",
     "@ai-sdk/react": "^3.0.151",
     "@json-render/core": "^0.16.0",
     "@json-render/react": "^0.16.0",

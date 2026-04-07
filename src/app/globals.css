@@ -107,3 +107,8 @@ body {
 .animate-spin-slow {
   animation: spin 1s linear infinite;
 }
+
+/* Hide preview text when observation card is expanded */
+details[open] .observation-preview {
+  display: none;
+}

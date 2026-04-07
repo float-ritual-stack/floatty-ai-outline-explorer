@@ -4,8 +4,11 @@ import {
   createUIMessageStream,
   createUIMessageStreamResponse,
   stepCountIs,
+  wrapLanguageModel,
+  gateway,
   type UIMessage,
 } from "ai";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { pipeJsonRender } from "@json-render/core";
 import {
   EXPLORER_INSTRUCTIONS,
@@ -40,8 +43,13 @@ export async function POST(req: Request) {
         (msg) => !Array.isArray(msg.content) || msg.content.length > 0
       );
 
+      const model = wrapLanguageModel({
+        model: gateway("anthropic/claude-sonnet-4"),
+        middleware: devToolsMiddleware(),
+      });
+
       const result = streamText({
-        model: "anthropic/claude-sonnet-4",
+        model,
         system: EXPLORER_INSTRUCTIONS,
         tools: EXPLORER_TOOLS,
         stopWhen: stepCountIs(steps),
