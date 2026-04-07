@@ -7,7 +7,8 @@ import {
   Square,
   CheckSquare,
 } from "lucide-react";
-import { truncate, getTypeColor, getProject, getProjectColor } from "@/lib/constants";
+import { getTypeColor } from "@/lib/constants";
+import { BlockContent } from "./block-content";
 import type { Block } from "@/lib/types";
 
 interface BlockRowProps {
@@ -100,9 +101,9 @@ export function BlockRow({
         </span>
         <span
           onClick={() => onNavigate(block.id)}
-          className="text-text flex-1 cursor-pointer break-words"
+          className="flex-1 cursor-pointer break-words min-w-0"
         >
-          {truncate(block.content, 180)}
+          <BlockContent block={block} truncateAt={180} />
         </span>
         <span className="text-dim text-[9px] shrink-0 mt-0.5">
           {block.id.slice(0, 6)}

@@ -3,6 +3,7 @@
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { useBlock } from "@/hooks/use-block";
 import { BlockRow } from "./block-row";
+import { BlockContent } from "./block-content";
 import { getTypeColor } from "@/lib/constants";
 
 interface BlockFocusProps {
@@ -63,8 +64,8 @@ export function BlockFocus({
         className="p-2 bg-surface border-b border-border"
         style={{ borderLeftWidth: 3, borderLeftColor: typeColor }}
       >
-        <div className="text-text text-[12px] whitespace-pre-wrap break-words max-h-[150px] overflow-auto">
-          {block.content}
+        <div className="max-h-[150px] overflow-auto">
+          <BlockContent block={block} />
         </div>
         {outlinks.length > 0 && (
           <div className="mt-1 flex gap-1 flex-wrap">

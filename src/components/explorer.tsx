@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import type { ViewMode } from "@/lib/types";
 import { usePages, usePageFilter } from "@/hooks/use-pages";
 import { Header } from "./header";
@@ -20,6 +20,8 @@ export function Explorer() {
   const [pageContextId, setPageContextId] = useState<string | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [pageFilter, setPageFilter] = useState("");
+  const [aiWidth, setAiWidth] = useState(380);
+  const dragging = useRef(false);
 
   const filteredPages = usePageFilter(pages, pageFilter);
 
@@ -147,7 +149,33 @@ export function Explorer() {
 
         {/* Right: AI panel */}
         {aiOpen && (
-          <div className="w-[380px] shrink-0 border-l border-border flex flex-col">
+          <div className="shrink-0 border-l border-border flex flex-col relative" style={{ width: aiWidth }}>
+            {/* Resize handle */}
+            <div
+              className="absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan/20 active:bg-cyan/30 transition-colors z-10"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                dragging.current = true;
+                const startX = e.clientX;
+                const startW = aiWidth;
+                const onMove = (ev: MouseEvent) => {
+                  if (!dragging.current) return;
+                  const delta = startX - ev.clientX;
+                  setAiWidth(Math.max(280, Math.min(800, startW + delta)));
+                };
+                const onUp = () => {
+                  dragging.current = false;
+                  document.removeEventListener("mousemove", onMove);
+                  document.removeEventListener("mouseup", onUp);
+                  document.body.style.cursor = "";
+                  document.body.style.userSelect = "";
+                };
+                document.addEventListener("mousemove", onMove);
+                document.addEventListener("mouseup", onUp);
+                document.body.style.cursor = "col-resize";
+                document.body.style.userSelect = "none";
+              }}
+            />
             <AiPanel
               selectedIds={[...selectedIds]}
               pageContextId={pageContextId}

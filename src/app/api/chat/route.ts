@@ -19,6 +19,17 @@ export async function POST(req: Request) {
     execute: async ({ writer }) => {
       const modelMessages = await convertToModelMessages(messages);
 
+      // Filter empty text content blocks that cause API errors
+      for (const msg of modelMessages) {
+        if (Array.isArray(msg.content)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (msg as any).content = (msg.content as any[]).filter(
+            (part: { type: string; text?: string }) =>
+              !(part.type === "text" && part.text === "")
+          );
+        }
+      }
+
       const result = streamText({
         model: "anthropic/claude-sonnet-4",
         system: EXPLORER_INSTRUCTIONS,
