@@ -15,18 +15,43 @@ export function usePages() {
         if (!res.ok) throw new Error(`Topology fetch failed: ${res.status}`);
         return res.json() as Promise<TopologyResponse>;
       })
-      .then((topo) => {
+      .then(async (topo) => {
+        setBlockCount(topo.meta.blocks);
+        setCtxCount(topo.daily.reduce((s, d) => s + d.n, 0));
+
+        // Build initial page list from topology
         const items: PageListItem[] = topo.n
           .map((node) => ({
             name: node.id,
             blockId: node.bid ?? null,
             blockCount: node.b,
-            isStub: false,
+            isStub: node.ref > 0,
           }))
           .sort((a, b) => b.blockCount - a.blockCount);
+
+        // If topology didn't provide blockIds, hydrate from pages search API
+        const needsHydration = items.some((p) => !p.isStub && !p.blockId);
+        if (needsHydration) {
+          try {
+            const res = await fetch("/api/pages?prefix=&limit=3000");
+            if (res.ok) {
+              const data = await res.json();
+              const pageMap = new Map<string, string>();
+              for (const pg of data.pages ?? []) {
+                if (pg.blockId) pageMap.set(pg.name.toLowerCase(), pg.blockId);
+              }
+              for (const item of items) {
+                if (!item.blockId) {
+                  item.blockId = pageMap.get(item.name.toLowerCase()) ?? null;
+                }
+              }
+            }
+          } catch {
+            // Hydration is best-effort
+          }
+        }
+
         setPages(items);
-        setBlockCount(topo.meta.blocks);
-        setCtxCount(topo.daily.reduce((s, d) => s + d.n, 0));
       })
       .catch((e) => console.error("Topology fetch error:", e))
       .finally(() => setLoading(false));

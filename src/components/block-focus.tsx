@@ -88,7 +88,7 @@ export function BlockFocus({
           key={child.id}
           block={child}
           depth={0}
-          isSelected={selectedIds.has(child.id)}
+          selectedIds={selectedIds}
           onToggleSelect={onToggleSelect}
           onNavigate={onNavigate}
         />

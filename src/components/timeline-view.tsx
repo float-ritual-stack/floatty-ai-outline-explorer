@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Square, CheckSquare } from "lucide-react";
-import { truncate, getProject, getProjectColor } from "@/lib/constants";
+import { truncate, getProjectColor } from "@/lib/constants";
 import type { SearchHit } from "@/lib/types";
 
 function parseCtxDate(content: string): string {
-  const m = content.match(/^ctx::(\d{4}-\d{2}-\d{2})/);
+  // Handle: ctx::2026-04-06, ctx:: 2026-04-06, ctx:: [[2026-04-06]]
+  const m = content.match(/^ctx::\s*\[?\[?(\d{4}-\d{2}-\d{2})/);
   return m ? m[1] : "";
 }
 

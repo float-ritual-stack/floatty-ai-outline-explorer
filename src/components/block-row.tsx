@@ -14,7 +14,7 @@ import type { Block } from "@/lib/types";
 interface BlockRowProps {
   block: Block;
   depth: number;
-  isSelected: boolean;
+  selectedIds: Set<string>;
   onToggleSelect: (id: string) => void;
   onNavigate: (id: string) => void;
 }
@@ -22,10 +22,11 @@ interface BlockRowProps {
 export function BlockRow({
   block,
   depth,
-  isSelected,
+  selectedIds,
   onToggleSelect,
   onNavigate,
 }: BlockRowProps) {
+  const isSelected = selectedIds.has(block.id);
   const [expanded, setExpanded] = useState(false);
   const [children, setChildren] = useState<Block[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -115,7 +116,7 @@ export function BlockRow({
             key={child.id}
             block={child}
             depth={depth + 1}
-            isSelected={false}
+            selectedIds={selectedIds}
             onToggleSelect={onToggleSelect}
             onNavigate={onNavigate}
           />

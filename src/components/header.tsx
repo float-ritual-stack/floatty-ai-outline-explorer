@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, X } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 interface HeaderProps {
   blockCount: number;

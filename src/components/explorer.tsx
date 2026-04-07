@@ -55,11 +55,12 @@ export function Explorer() {
         );
         if (!res.ok) return;
         const data = await res.json();
-        const match = data.pages?.find(
-          (p: { name: string; blockId: string | null }) =>
-            p.name.toLowerCase() === title.toLowerCase() ||
-            p.name.toLowerCase().includes(title.toLowerCase())
-        );
+        const pages = (data.pages ?? []) as { name: string; blockId: string | null }[];
+        const lTitle = title.toLowerCase();
+        const exact = pages.find((p) => p.name.toLowerCase() === lTitle);
+        const prefix = pages.find((p) => !exact && p.name.toLowerCase().startsWith(lTitle));
+        const fuzzy = pages.filter((p) => p.name.toLowerCase().includes(lTitle));
+        const match = exact ?? prefix ?? (fuzzy.length === 1 ? fuzzy[0] : null);
         if (match?.blockId) {
           setFocusBlockId(match.blockId);
           analyzeAi(match.blockId);

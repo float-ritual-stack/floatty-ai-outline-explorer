@@ -1,15 +1,41 @@
 "use client";
 
+import { Component, type ReactNode } from "react";
 import { useJsonRenderMessage } from "@json-render/react";
 import { isToolUIPart, getToolName } from "ai";
 import { ExplorerRenderer } from "@/lib/catalog/explorer-renderer";
 import { StepCard } from "./step-card";
 
-interface MessageBubbleProps {
-  message: { id: string; role: string; parts: unknown[] };
+class SpecErrorBoundary extends Component<
+  { children: ReactNode; fallback?: string },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="text-coral text-[10px] font-mono p-2 bg-surface rounded">
+          <div className="font-bold mb-1">spec render error</div>
+          <pre className="text-dim whitespace-pre-wrap">{this.state.error.message}</pre>
+          {this.props.fallback && (
+            <pre className="text-text mt-2 whitespace-pre-wrap">{this.props.fallback}</pre>
+          )}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+interface MessageBubbleProps {
+  message: { id: string; role: string; parts: unknown[] };
+  onNavigateToPage?: (title: string) => void;
+}
+
+export function MessageBubble({ message, onNavigateToPage }: MessageBubbleProps) {
   // Extract spec and text from message parts
   const { spec, text, hasSpec } = useJsonRenderMessage(
     message.parts as Parameters<typeof useJsonRenderMessage>[0]
@@ -51,8 +77,22 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
       {/* Rendered spec (if the AI emitted one) */}
       {hasSpec && spec && (
-        <div className="mt-2">
-          <ExplorerRenderer spec={spec} />
+        <div
+          className="mt-2"
+          onClick={(e) => {
+            if (!onNavigateToPage) return;
+            const el = e.target as HTMLElement;
+            const walk = el.closest<HTMLElement>("[data-walk-page]");
+            if (walk?.dataset.walkPage) { onNavigateToPage(walk.dataset.walkPage); return; }
+            const wikilink = el.closest<HTMLElement>("[data-wikilink-target]");
+            if (wikilink?.dataset.wikilinkTarget) { onNavigateToPage(wikilink.dataset.wikilinkTarget); return; }
+            const page = el.closest<HTMLElement>("[data-page]");
+            if (page?.dataset.page) { onNavigateToPage(page.dataset.page); return; }
+          }}
+        >
+          <SpecErrorBoundary fallback={text ?? undefined}>
+            <ExplorerRenderer spec={spec} />
+          </SpecErrorBoundary>
         </div>
       )}
     </div>

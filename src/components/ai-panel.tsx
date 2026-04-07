@@ -53,7 +53,20 @@ export function AiPanel({
       return `I'm looking at block ID "${pageContextId}" in the floatty knowledge graph.\n\nFirst, use the get_block tool with this block ID to fetch its content and subtree. Then:\n\n${taskPrompt}`;
     }
     if (selectedIds.length > 0) {
-      return `I've selected ${selectedIds.length} blocks in the floatty knowledge graph.\n\nFirst, use the get_block tool to fetch each of these block IDs: ${selectedIds.join(", ")}\n\nThen:\n\n${taskPrompt}`;
+      const blockIds = selectedIds.filter((id) => !id.startsWith("page:"));
+      const pageNames = selectedIds
+        .filter((id) => id.startsWith("page:"))
+        .map((id) => id.slice(5));
+
+      const parts: string[] = [];
+      if (blockIds.length > 0) {
+        parts.push(`Use get_block to fetch these block IDs: ${blockIds.join(", ")}`);
+      }
+      if (pageNames.length > 0) {
+        parts.push(`Use expand_page to fetch these pages: ${pageNames.join(", ")}`);
+      }
+
+      return `I've selected ${selectedIds.length} items in the floatty knowledge graph.\n\nFirst, ${parts.join(". Also, ")}.\n\nThen:\n\n${taskPrompt}`;
     }
     return taskPrompt;
   }
@@ -153,7 +166,7 @@ export function AiPanel({
         {messages
           .filter((m) => m.role === "assistant")
           .map((msg) => (
-            <MessageBubble key={msg.id} message={msg} />
+            <MessageBubble key={msg.id} message={msg} onNavigateToPage={onNavigateToPage} />
           ))}
 
         {isLoading && (

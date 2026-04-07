@@ -9,8 +9,14 @@ import type {
   TopologyResponse,
 } from "./types";
 
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing required env: ${name}`);
+  return value;
+}
+
 const FLOATTY_URL = process.env.FLOATTY_URL ?? "https://floatty.ngrok.app";
-const FLOATTY_API_KEY = process.env.FLOATTY_API_KEY!;
+const FLOATTY_API_KEY = requireEnv("FLOATTY_API_KEY");
 
 async function floattyFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${FLOATTY_URL}${path}`, {
