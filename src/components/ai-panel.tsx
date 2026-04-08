@@ -13,7 +13,7 @@ interface AiPanelProps {
   selectedIds: string[];
   pageContextId: string | null;
   onClose: () => void;
-  onNavigateToPage: (title: string) => void;
+  onNavigateToPage: (title: string) => void | Promise<unknown>;
 }
 
 export function AiPanel({

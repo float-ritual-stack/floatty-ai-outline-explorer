@@ -1,30 +1,42 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { BlockWithContext } from "@/lib/types";
+
+interface BlockState {
+  blockId: string | null;
+  block: BlockWithContext | null;
+  loading: boolean;
+  error: string | null;
+}
 
 export function useBlock(
   blockId: string | null,
   includes?: string[]
 ) {
-  const [block, setBlock] = useState<BlockWithContext | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<BlockState>({
+    blockId: null,
+    block: null,
+    loading: false,
+    error: null,
+  });
+  const includeParam = useMemo(() => includes?.join(",") ?? "", [includes]);
 
   useEffect(() => {
     if (!blockId) {
-      setBlock(null);
-      setError(null);
       return;
     }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState((prev) => ({
+      blockId,
+      block: prev.blockId === blockId ? prev.block : null,
+      loading: true,
+      error: null,
+    }));
 
-    const params = includes?.length
-      ? `?include=${includes.join(",")}`
-      : "";
+    const params = includeParam ? `?include=${includeParam}` : "";
 
     fetch(`/api/blocks/${blockId}${params}`)
       .then((res) => {
@@ -32,20 +44,39 @@ export function useBlock(
         return res.json();
       })
       .then((data) => {
-        if (!cancelled) setBlock(data);
+        if (!cancelled) {
+          setState({
+            blockId,
+            block: data,
+            loading: false,
+            error: null,
+          });
+        }
       })
       .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load block");
+        if (!cancelled) {
+          setState({
+            blockId,
+            block: null,
+            loading: false,
+            error: e instanceof Error ? e.message : "Failed to load block",
+          });
+        }
         console.error("Block fetch error:", e);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [blockId, includes?.join(",")]);
+  }, [blockId, includeParam]);
 
-  return { block, loading, error };
+  if (!blockId) {
+    return { block: null, loading: false, error: null };
+  }
+
+  return {
+    block: state.blockId === blockId ? state.block : null,
+    loading: state.blockId === blockId ? state.loading : true,
+    error: state.blockId === blockId ? state.error : null,
+  };
 }

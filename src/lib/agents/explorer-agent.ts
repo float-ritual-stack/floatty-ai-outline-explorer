@@ -80,11 +80,12 @@ export function getExplorerTools() {
 // TYPE INFERENCE ONLY — not called at runtime.
 // chat/route.ts uses getExplorerTools() + streamText directly (to include load_skill).
 // This instance exists solely for InferAgentUIMessage type derivation.
-const explorerAgent = new ToolLoopAgent({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _explorerAgent = new ToolLoopAgent({
   model: "anthropic/claude-sonnet-4",
   instructions: EXPLORER_INSTRUCTIONS,
   tools: EXPLORER_TOOLS,
   stopWhen: stepCountIs(5),
 });
 
-export type ExplorerUIMessage = InferAgentUIMessage<typeof explorerAgent>;
+export type ExplorerUIMessage = InferAgentUIMessage<typeof _explorerAgent>;

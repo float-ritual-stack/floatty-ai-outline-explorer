@@ -8,27 +8,26 @@ interface PagesViewProps {
   pages: PageListItem[];
   selectedIds: Set<string>;
   onToggleSelect: (id: string) => void;
-  onNavigate: (id: string) => void;
   onAnalyze: (id: string) => void;
-  onNavigateToPage: (title: string) => void;
+  onNavigateToPage: (title: string) => void | Promise<unknown>;
 }
 
 export function PagesView({
   pages,
   selectedIds,
   onToggleSelect,
-  onNavigate,
   onAnalyze,
   onNavigateToPage,
 }: PagesViewProps) {
   return (
     <div>
-      {pages.map((pg) => {
-        const selectKey = pg.blockId ?? `page:${pg.name}`;
+      {pages.map((pg, idx) => {
+        const fallbackKey = `${pg.name}-${idx}`;
+        const selectKey = pg.blockId ?? `page:${fallbackKey}`;
         const isSel = selectedIds.has(selectKey);
         return (
           <div
-            key={pg.blockId ?? pg.name}
+            key={pg.blockId ?? fallbackKey}
             className="flex items-center gap-1.5 px-1.5 py-1 border-b border-border/5 text-[11px] hover:bg-hover transition-colors"
           >
             <span

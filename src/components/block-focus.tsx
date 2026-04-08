@@ -13,7 +13,7 @@ interface BlockFocusProps {
   onAnalyze: (id: string) => void;
   onToggleSelect: (id: string) => void;
   onNavigate: (id: string) => void;
-  onNavigateToPage: (title: string) => void;
+  onNavigateToPage: (title: string) => void | Promise<unknown>;
 }
 
 export function BlockFocus({

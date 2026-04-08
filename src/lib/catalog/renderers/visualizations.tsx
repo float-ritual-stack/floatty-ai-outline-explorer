@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { colors, ArrowRight, resolveColor } from "./shared";
-import type { RendererMap } from "@json-render/react";
 
-export const visualizationRenderers: RendererMap = {
-  LinkGraph: ({ element }) => {
+export const visualizationRenderers = {
+  LinkGraph: ({ element }: any) => {
     const nodes = element.props.nodes ?? [];
     const edges = element.props.edges ?? [];
     const w = 420, h = 260;
@@ -56,7 +56,7 @@ export const visualizationRenderers: RendererMap = {
     );
   },
 
-  ActivityHeatmap: ({ element }) => {
+  ActivityHeatmap: ({ element }: any) => {
     const data = element.props.data ?? [];
     const c = resolveColor(element.props.color ?? "cyan");
     const maxVal = Math.max(...data.map((d: { value: number }) => d.value), 1);
@@ -87,7 +87,7 @@ export const visualizationRenderers: RendererMap = {
     );
   },
 
-  ProvenanceChain: ({ element }) => {
+  ProvenanceChain: ({ element }: any) => {
     const steps = element.props.steps ?? [];
     const sourceColors: Record<string, string> = {
       qmd: colors.cyan, conversation: colors.magenta, bbs: colors.purple,
@@ -126,7 +126,7 @@ export const visualizationRenderers: RendererMap = {
     );
   },
 
-  RiskMatrix: ({ element }) => {
+  RiskMatrix: ({ element }: any) => {
     const items = element.props.items ?? [];
     const rows = ["high", "medium", "low"] as const;
     const cols = ["structural", "content", "cosmetic"] as const;
@@ -166,7 +166,7 @@ export const visualizationRenderers: RendererMap = {
     );
   },
 
-  TimelineDiff: ({ element }) => {
+  TimelineDiff: ({ element }: any) => {
     const before = element.props.before ?? { date: "", items: [] };
     const after = element.props.after ?? { date: "", items: [] };
     return (

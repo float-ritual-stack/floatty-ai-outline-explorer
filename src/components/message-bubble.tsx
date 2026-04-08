@@ -37,7 +37,7 @@ class SpecErrorBoundary extends Component<
 
 interface MessageBubbleProps {
   message: ExplorerUIMessage;
-  onNavigateToPage?: (title: string) => void;
+  onNavigateToPage?: (title: string) => void | Promise<unknown>;
   isStreaming?: boolean;
   streamSpec?: boolean;
 }

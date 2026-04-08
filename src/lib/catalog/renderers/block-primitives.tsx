@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { colors, Terminal, Paintbrush, Search } from "./shared";
 import { projectColors } from "@/lib/constants";
 

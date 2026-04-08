@@ -6,10 +6,11 @@ import { promisify } from "util";
 const execFileAsync = promisify(execFile);
 
 // Narrow env: only pass what qmd needs, never expose all server env vars to a subprocess.
-function buildQmdEnv() {
+function buildQmdEnv(): NodeJS.ProcessEnv {
   return {
     HOME: process.env.HOME ?? "",
     PATH: process.env.PATH ?? "",
+    NODE_ENV: process.env.NODE_ENV ?? "development",
     NO_COLOR: "1",
   };
 }

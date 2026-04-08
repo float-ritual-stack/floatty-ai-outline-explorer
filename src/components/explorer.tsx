@@ -1,5 +1,6 @@
 "use client";
 
+import { AlertTriangle, X } from "lucide-react";
 import { usePages, usePageFilter } from "@/hooks/use-pages";
 import { useExplorerState } from "@/hooks/use-explorer-state";
 import { useResizable } from "@/hooks/use-resizable";
@@ -13,7 +14,13 @@ import { AiPanel } from "./ai-panel";
 import { ViewErrorBoundary } from "./view-error-boundary";
 
 export function Explorer() {
-  const { pages, loading: pagesLoading, error: pagesError, blockCount, ctxCount } = usePages();
+  const {
+    pages,
+    loading: pagesLoading,
+    error: pagesError,
+    blockCount,
+    ctxCount,
+  } = usePages();
   const state = useExplorerState();
   const { width: aiWidth, onMouseDown: onResizeMouseDown } = useResizable({
     initialWidth: 380,
@@ -50,7 +57,6 @@ export function Explorer() {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left: browser panel */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <SidebarTabs
             view={state.view}
@@ -58,6 +64,60 @@ export function Explorer() {
             pageCount={pages.length}
             ctxCount={ctxCount}
           />
+
+          {state.pageResolve && (
+            <div className="border-b border-border bg-surface px-2.5 py-2">
+              <div className="flex items-start gap-2">
+                <AlertTriangle
+                  size={12}
+                  className={
+                    state.pageResolve.type === "ambiguous"
+                      ? "text-amber mt-0.5 shrink-0"
+                      : "text-coral mt-0.5 shrink-0"
+                  }
+                />
+                <div className="min-w-0 flex-1">
+                  {state.pageResolve.type === "ambiguous" ? (
+                    <>
+                      <div className="text-[11px] text-text">
+                        Multiple pages match{" "}
+                        <span className="text-cyan font-mono">
+                          {state.pageResolve.title}
+                        </span>
+                        .
+                      </div>
+                      <div className="mt-1.5 flex flex-wrap gap-1.5">
+                        {state.pageResolve.candidates.map((candidate) => (
+                          <button
+                            key={`${candidate.name}:${candidate.blockId ?? "stub"}`}
+                            onClick={() =>
+                              state.choosePageResolveCandidate(candidate)
+                            }
+                            className="rounded border border-border bg-bg px-1.5 py-0.5 text-[10px] text-text transition-colors hover:border-cyan hover:text-cyan"
+                          >
+                            {candidate.name}
+                            {!candidate.blockId && (
+                              <span className="ml-1 text-dim">(stub)</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-[11px] text-coral">
+                      {state.pageResolve.message}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={state.dismissPageResolve}
+                  className="bg-transparent border-none text-dim transition-colors hover:text-text"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            </div>
+          )}
 
           <ViewErrorBoundary>
             <div className="flex-1 overflow-y-auto">
@@ -85,7 +145,6 @@ export function Explorer() {
                     pages={filteredPages}
                     selectedIds={state.selectedIds}
                     onToggleSelect={state.toggleSelect}
-                    onNavigate={state.navigateTo}
                     onAnalyze={state.analyzeAi}
                     onNavigateToPage={state.navigateToPageByTitle}
                   />
@@ -107,10 +166,11 @@ export function Explorer() {
           </ViewErrorBoundary>
         </div>
 
-        {/* Right: AI panel */}
         {state.aiOpen && (
-          <div className="shrink-0 border-l border-border flex flex-col relative" style={{ width: aiWidth }}>
-            {/* Resize handle */}
+          <div
+            className="shrink-0 border-l border-border flex flex-col relative"
+            style={{ width: aiWidth }}
+          >
             <div
               className="absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan/20 active:bg-cyan/30 transition-colors z-10"
               onMouseDown={onResizeMouseDown}

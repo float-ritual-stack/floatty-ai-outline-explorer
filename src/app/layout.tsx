@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import "./globals.css";
 import { colors } from "@/lib/constants";
 
@@ -7,11 +8,9 @@ export const metadata: Metadata = {
   description: "AI-powered knowledge graph explorer for floatty outliner",
 };
 
-// Generate CSS custom properties from the single-source-of-truth colors object.
-// globals.css then references these vars — no manual sync required.
-const colorVarBlock = Object.entries(colors)
-  .map(([k, v]) => `  --color-${k}: ${v};`)
-  .join("\n");
+const colorVars = Object.fromEntries(
+  Object.entries(colors).map(([key, value]) => [`--color-${key}`, value])
+) as CSSProperties;
 
 export default function RootLayout({
   children,
@@ -19,10 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <head>
-        <style>{`:root {\n${colorVarBlock}\n}`}</style>
-      </head>
+    <html lang="en" className="h-full" style={colorVars}>
       <body className="h-full">{children}</body>
     </html>
   );

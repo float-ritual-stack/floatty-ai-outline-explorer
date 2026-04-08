@@ -10,9 +10,26 @@ export async function GET(request: NextRequest) {
   try {
     const result = await resolvePageTitle(title);
     if (!result) {
-      return Response.json({ error: `No page found for "${title}"` }, { status: 404 });
+      return Response.json(
+        {
+          type: "not_found",
+          title,
+          error: `No page found for "${title}"`,
+        },
+        { status: 404 }
+      );
     }
-    return Response.json(result);
+    if ("candidates" in result) {
+      return Response.json(
+        {
+          type: "ambiguous",
+          title,
+          candidates: result.candidates,
+        },
+        { status: 300 }
+      );
+    }
+    return Response.json({ type: "resolved", ...result });
   } catch (e) {
     return Response.json({ error: String(e) }, { status: 502 });
   }
