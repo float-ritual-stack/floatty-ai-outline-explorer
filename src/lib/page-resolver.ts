@@ -9,6 +9,11 @@ export interface ResolveAmbiguous {
   candidates: { name: string; blockId: string | null }[];
 }
 
+export type ResolveRouteResponse =
+  | ({ type: "resolved" } & ResolveResult)
+  | ({ type: "ambiguous"; title: string } & ResolveAmbiguous)
+  | { type: "not_found"; title: string; error: string };
+
 /**
  * Resolve a page title to a canonical blockId using a 3-tier fuzzy match:
  * exact → prefix → single-fuzzy. Returns null if no match or ambiguous.
@@ -33,7 +38,7 @@ export async function resolvePageTitle(
   }
 
   if (fuzzy.length > 1) {
-    return { candidates: fuzzy.map((p) => ({ name: p.name, blockId: p.blockId ?? null })) };
+    return { candidates: fuzzy.map((p) => ({ name: p.name, blockId: p.blockId })) };
   }
 
   // Fallback: first result from prefix search

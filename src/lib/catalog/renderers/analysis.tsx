@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { colors, severityColors, confidenceColors, variantStyles, AlertTriangle, AlertCircle, Info, Link2, FileText, GitBranch, Zap, ExternalLink, ChevronRight, resolveColor } from "./shared";
-import type { RendererMap } from "@json-render/react";
 import type { LucideIcon } from "lucide-react";
 
-export const analysisRenderers: RendererMap = {
-  Section: ({ element, children }) => {
+export const analysisRenderers = {
+  Section: ({ element, children }: any) => {
     const style = variantStyles[element.props.variant ?? "default"];
     return (
       <div
@@ -20,7 +20,7 @@ export const analysisRenderers: RendererMap = {
     );
   },
 
-  PatternCard: ({ element }) => {
+  PatternCard: ({ element }: any) => {
     const conf = element.props.confidence ?? "medium";
     return (
       <div
@@ -50,7 +50,7 @@ export const analysisRenderers: RendererMap = {
     );
   },
 
-  GapItem: ({ element }) => {
+  GapItem: ({ element }: any) => {
     const sev = element.props.severity ?? "info";
     const sevColor = severityColors[sev] ?? colors.cyan;
 
@@ -104,7 +104,7 @@ export const analysisRenderers: RendererMap = {
     );
   },
 
-  ObservationCard: ({ element }) => {
+  ObservationCard: ({ element }: any) => {
     const sevColors: Record<string, string> = {
       surprising: colors.magenta,
       structural: colors.cyan,
@@ -129,9 +129,11 @@ export const analysisRenderers: RendererMap = {
             <div className="text-text text-[12px] font-mono font-semibold leading-snug">
               {element.props.title}
             </div>
+            {element.props.body && (
             <div className="text-muted text-[10px] font-mono mt-0.5 truncate group-open:hidden">
               {element.props.body.slice(0, 80)}{element.props.body.length > 80 ? "\u2026" : ""}
             </div>
+            )}
           </div>
           <span
             className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded shrink-0"
@@ -163,7 +165,7 @@ export const analysisRenderers: RendererMap = {
     );
   },
 
-  PatternCluster: ({ element }) => {
+  PatternCluster: ({ element }: any) => {
     const c = resolveColor(element.props.color);
     const instances = element.props.instances ?? [];
     const connections = element.props.connections ?? [];

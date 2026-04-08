@@ -20,10 +20,6 @@ export const expandPageTool = tool({
       };
     }
 
-    if (!result.blockId) {
-      return { error: `Page "${result.name}" is a stub (referenced but not created)` };
-    }
-
     const block = await getBlock(result.blockId, ["tree"]);
 
     const lines: string[] = [];
