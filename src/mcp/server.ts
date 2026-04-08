@@ -56,32 +56,35 @@ function requireEnv(name: string): string {
 requireEnv("FLOATTY_URL");
 requireEnv("FLOATTY_API_KEY");
 
-// Create MCP server with json-render UI
-const server = await createMcpApp({
-  name: "floatty-explorer",
-  version,
-  catalog: explorerCatalog,
-  html,
-});
+async function main() {
+  const server = await createMcpApp({
+    name: "floatty-explorer",
+    version,
+    catalog: explorerCatalog,
+    html,
+  });
 
-// Register the 6 data tools alongside the auto-registered render-ui tool
-registerDataTools(server);
+  registerDataTools(server);
 
-// Connect via stdio
-const transport = new StdioServerTransport();
-await server.connect(transport);
-console.error(
-  `floatty-explorer MCP server v${version} running on stdio (with render-ui)`
-);
-console.error(`  FLOATTY_URL: ${process.env.FLOATTY_URL}`);
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error(
+    `floatty-explorer MCP server v${version} running on stdio (with render-ui)`
+  );
+  console.error(`  FLOATTY_URL: ${process.env.FLOATTY_URL}`);
 
-// Graceful shutdown
-process.on("SIGINT", async () => {
-  await server.close();
-  process.exit(0);
-});
+  process.on("SIGINT", async () => {
+    await server.close();
+    process.exit(0);
+  });
 
-process.on("SIGTERM", async () => {
-  await server.close();
-  process.exit(0);
+  process.on("SIGTERM", async () => {
+    await server.close();
+    process.exit(0);
+  });
+}
+
+main().catch((err) => {
+  console.error("Fatal:", err);
+  process.exit(1);
 });
