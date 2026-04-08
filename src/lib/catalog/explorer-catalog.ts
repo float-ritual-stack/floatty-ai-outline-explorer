@@ -472,5 +472,28 @@ export const explorerCatalog = defineCatalog(schema, {
         "Generic outliner block — fallback for unrecognized types",
     },
   },
-  actions: {},
+  actions: {
+    setState: {
+      params: z.object({
+        statePath: z.string(),
+        value: z.any(),
+      }),
+      description: "Update a value in the state model",
+    },
+    pushState: {
+      params: z.object({
+        statePath: z.string(),
+        value: z.any(),
+        clearStatePath: z.string().optional(),
+      }),
+      description: "Append an item to an array in state",
+    },
+    removeState: {
+      params: z.object({
+        statePath: z.string(),
+        index: z.number(),
+      }),
+      description: "Remove an item from an array by index",
+    },
+  },
 });
