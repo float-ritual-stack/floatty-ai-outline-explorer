@@ -5,7 +5,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, isToolUIPart, getToolName } from "ai";
 import { Sparkles, X, Send, Loader, Compass, Settings, PlayCircle } from "lucide-react";
 import type { ExplorerUIMessage } from "@/lib/agents/explorer-agent";
-import { AiActions, AI_ACTIONS, type AiAction } from "./ai-actions";
+import { AiActions, type AiActionWithPrompt } from "./ai-actions";
 import { WalkChip } from "./walk-chip";
 import { MessageBubble } from "./message-bubble";
 
@@ -75,7 +75,7 @@ export function AiPanel({
     return taskPrompt;
   }
 
-  function handleAction(action: AiAction) {
+  function handleAction(action: AiActionWithPrompt) {
     setActiveAction(action.id);
     setMessages([]);
     const msg = buildContextMessage(action.prompt);

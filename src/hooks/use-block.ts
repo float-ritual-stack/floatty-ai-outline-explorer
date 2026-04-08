@@ -9,15 +9,18 @@ export function useBlock(
 ) {
   const [block, setBlock] = useState<BlockWithContext | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!blockId) {
       setBlock(null);
+      setError(null);
       return;
     }
 
     let cancelled = false;
     setLoading(true);
+    setError(null);
 
     const params = includes?.length
       ? `?include=${includes.join(",")}`
@@ -31,7 +34,10 @@ export function useBlock(
       .then((data) => {
         if (!cancelled) setBlock(data);
       })
-      .catch((e) => console.error("Block fetch error:", e))
+      .catch((e) => {
+        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load block");
+        console.error("Block fetch error:", e);
+      })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
@@ -41,5 +47,5 @@ export function useBlock(
     };
   }, [blockId, includes?.join(",")]);
 
-  return { block, loading };
+  return { block, loading, error };
 }

@@ -7,6 +7,7 @@ import { Streamdown } from "streamdown";
 import { code } from "@streamdown/code";
 import { ExplorerRenderer } from "@/lib/catalog/explorer-renderer";
 import { StepCard } from "./step-card";
+import type { ExplorerUIMessage } from "@/lib/agents/explorer-agent";
 
 const streamdownPlugins = { code };
 
@@ -35,7 +36,7 @@ class SpecErrorBoundary extends Component<
 }
 
 interface MessageBubbleProps {
-  message: { id: string; role: string; parts: unknown[] };
+  message: ExplorerUIMessage;
   onNavigateToPage?: (title: string) => void;
   isStreaming?: boolean;
   streamSpec?: boolean;
@@ -50,7 +51,7 @@ export function MessageBubble({ message, onNavigateToPage, isStreaming, streamSp
   return (
     <div className="mb-4">
       {/* Tool call parts (step cards) */}
-      {message.parts.map((part: any, i: number) => {
+      {message.parts.map((part, i: number) => {
         if (isToolUIPart(part)) {
           const toolName = getToolName(part);
           if (toolName === "suggest_walks") return null;

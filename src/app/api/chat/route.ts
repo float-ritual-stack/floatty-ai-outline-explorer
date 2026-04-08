@@ -14,7 +14,7 @@ import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { pipeJsonRender } from "@json-render/core";
 import {
   EXPLORER_INSTRUCTIONS,
-  EXPLORER_TOOLS,
+  getExplorerTools,
 } from "@/lib/agents/explorer-agent";
 
 const requestSchema = z.object({
@@ -59,10 +59,12 @@ export async function POST(req: Request) {
         middleware: devToolsMiddleware(),
       });
 
+      const tools = await getExplorerTools();
+
       const result = streamText({
         model,
         system: EXPLORER_INSTRUCTIONS,
-        tools: EXPLORER_TOOLS,
+        tools,
         stopWhen: stepCountIs(steps),
         maxOutputTokens: tokens,
         messages: filteredMessages,

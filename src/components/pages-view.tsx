@@ -23,12 +23,12 @@ export function PagesView({
 }: PagesViewProps) {
   return (
     <div>
-      {pages.map((pg, i) => {
+      {pages.map((pg) => {
         const selectKey = pg.blockId ?? `page:${pg.name}`;
         const isSel = selectedIds.has(selectKey);
         return (
           <div
-            key={`${pg.name}-${i}`}
+            key={pg.blockId ?? pg.name}
             className="flex items-center gap-1.5 px-1.5 py-1 border-b border-border/5 text-[11px] hover:bg-hover transition-colors"
           >
             <span

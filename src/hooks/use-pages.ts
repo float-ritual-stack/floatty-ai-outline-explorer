@@ -6,6 +6,7 @@ import type { PageListItem, TopologyResponse } from "@/lib/types";
 export function usePages() {
   const [pages, setPages] = useState<PageListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [blockCount, setBlockCount] = useState(0);
   const [ctxCount, setCtxCount] = useState(0);
 
@@ -53,11 +54,15 @@ export function usePages() {
 
         setPages(items);
       })
-      .catch((e) => console.error("Topology fetch error:", e))
+      .catch((e) => {
+        const msg = e instanceof Error ? e.message : "Failed to load pages";
+        setError(msg);
+        console.error("Topology fetch error:", e);
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  return { pages, loading, blockCount, ctxCount };
+  return { pages, loading, error, blockCount, ctxCount };
 }
 
 export function usePageFilter(pages: PageListItem[], filter: string) {
