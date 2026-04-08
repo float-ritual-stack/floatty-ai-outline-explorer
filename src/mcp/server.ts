@@ -4,20 +4,27 @@
  *
  * Exposes 6 data tools + a render-ui tool over stdio transport.
  * Data tools query the floatty knowledge graph via HTTP.
- * The render-ui tool (from @json-render/mcp) renders explorer
- * components inside an iframe in Claude Desktop, Cursor, etc.
+ * The render-ui tool renders explorer components inside an iframe
+ * in Claude Desktop, Cursor, etc.
+ *
+ * We wire the MCP Apps plumbing manually (instead of createMcpApp)
+ * so the render-ui tool accepts the full spec without Zod stripping
+ * framework-level fields (on, repeat, watch) that the catalog schema
+ * doesn't declare.
  *
  * Requires FLOATTY_URL and FLOATTY_API_KEY env vars.
  * Requires `pnpm mcp:build` to have run first (builds dist/mcp/index.html).
  */
 
-import { createMcpApp } from "@json-render/mcp";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { registerJsonRenderResource } from "@json-render/mcp";
 import { explorerCatalog } from "../lib/catalog/explorer-catalog.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerDataTools } from "./tools.js";
 import { readFileSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { z } from "zod";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -57,13 +64,30 @@ requireEnv("FLOATTY_URL");
 requireEnv("FLOATTY_API_KEY");
 
 async function main() {
-  const server = await createMcpApp({
+  const server = new McpServer({
     name: "floatty-explorer",
     version,
-    catalog: explorerCatalog,
-    html,
   });
 
+  // Register render-ui tool with permissive schema (z.any) so
+  // framework fields (on, repeat, watch, visible) pass through
+  // without Zod stripping them.
+  const catalogPrompt = explorerCatalog.prompt();
+  const resourceUri = "ui://render-ui/view.html";
+
+  server.tool(
+    "render-ui",
+    `Render an interactive UI. The spec argument must be a json-render spec conforming to the catalog.\n\n${catalogPrompt}`,
+    { spec: z.any().describe("json-render spec object with root, elements, and optional state") },
+    async ({ spec }) => ({
+      content: [{ type: "text" as const, text: JSON.stringify(spec) }],
+    })
+  );
+
+  // Register the iframe HTML resource
+  await registerJsonRenderResource(server, { resourceUri, html });
+
+  // Register the 6 data tools
   registerDataTools(server);
 
   const transport = new StdioServerTransport();
