@@ -83,7 +83,7 @@ export async function searchBlocks(
 
 // Pages
 
-export async function searchPages(
+export async function searchPagesByPrefix(
   prefix: string,
   limit = 10
 ): Promise<PageEntry[]> {

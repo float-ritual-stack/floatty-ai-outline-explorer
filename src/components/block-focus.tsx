@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles, AlertTriangle } from "lucide-react";
 import { useBlock } from "@/hooks/use-block";
 import { BlockRow } from "./block-row";
 import { BlockContent } from "./block-content";
@@ -25,11 +25,20 @@ export function BlockFocus({
   onNavigate,
   onNavigateToPage,
 }: BlockFocusProps) {
-  const { block, loading } = useBlock(blockId, ["children", "ancestors"]);
+  const { block, loading, error } = useBlock(blockId, ["children", "ancestors"]);
 
   if (loading) {
     return (
       <div className="p-4 text-muted text-[11px]">loading block&hellip;</div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 flex items-start gap-2 text-coral text-[11px]">
+        <AlertTriangle size={12} className="mt-0.5 shrink-0" />
+        <span>{error}</span>
+      </div>
     );
   }
 

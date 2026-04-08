@@ -294,7 +294,7 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
 
     return (
       <details
-        className="mb-1.5 bg-surface rounded-r overflow-hidden"
+        className="mb-1.5 bg-surface rounded-r overflow-hidden group"
         style={{ borderLeft: `3px solid ${c}`, border: `1px solid ${colors.border}`, borderLeftWidth: 3, borderLeftColor: c }}
       >
         <summary className="flex items-start gap-2 px-3 py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
@@ -305,7 +305,7 @@ export const ExplorerRenderer = createRenderer(explorerCatalog, {
             <div className="text-text text-[12px] font-mono font-semibold leading-snug">
               {element.props.title}
             </div>
-            <div className="text-muted text-[10px] font-mono mt-0.5 truncate observation-preview">
+            <div className="text-muted text-[10px] font-mono mt-0.5 truncate group-open:hidden">
               {element.props.body.slice(0, 80)}{element.props.body.length > 80 ? "\u2026" : ""}
             </div>
           </div>

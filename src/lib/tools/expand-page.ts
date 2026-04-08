@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { searchPages, getBlock } from "../floatty-client";
+import { getBlock } from "../floatty-client";
+import { resolvePageTitle } from "../page-resolver";
 
 export const expandPageTool = tool({
   description:
@@ -9,22 +10,22 @@ export const expandPageTool = tool({
     title: z.string().describe("Page title to look up"),
   }),
   execute: async ({ title }) => {
-    const pages = await searchPages(title, 5);
-    if (!pages.length) return { error: `Page "${title}" not found` };
+    const result = await resolvePageTitle(title);
 
-    // Find best match
-    const exact = pages.find(
-      (p) => p.name.toLowerCase() === title.toLowerCase()
-    );
-    const match = exact ?? pages[0];
+    if (!result) return { error: `Page "${title}" not found` };
 
-    if (!match.blockId) {
-      return { error: `Page "${match.name}" is a stub (referenced but not created)` };
+    if ("candidates" in result) {
+      return {
+        error: `Ambiguous title "${title}" — did you mean one of: ${result.candidates.map((c) => c.name).join(", ")}?`,
+      };
     }
 
-    const block = await getBlock(match.blockId, ["tree"]);
+    if (!result.blockId) {
+      return { error: `Page "${result.name}" is a stub (referenced but not created)` };
+    }
 
-    // Serialize tree into readable text
+    const block = await getBlock(result.blockId, ["tree"]);
+
     const lines: string[] = [];
     if (block.tree) {
       for (const node of block.tree.slice(0, 200)) {
@@ -34,8 +35,8 @@ export const expandPageTool = tool({
     }
 
     return {
-      page: match.name,
-      blockId: match.blockId,
+      page: result.name,
+      blockId: result.blockId,
       blockCount: block.tree?.length ?? 0,
       tree: lines.join("\n"),
     };

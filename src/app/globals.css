@@ -1,23 +1,8 @@
 @import "tailwindcss";
 @source "../../../node_modules/streamdown/dist/*.js";
 
-:root {
-  --color-bg: #0d0d0d;
-  --color-surface: #141414;
-  --color-surface2: #1a1a1a;
-  --color-hover: #222222;
-  --color-border: #2a2a2a;
-  --color-text: #c9d1d9;
-  --color-muted: #6e7681;
-  --color-dim: #484f58;
-  --color-cyan: #00e5ff;
-  --color-magenta: #e040a0;
-  --color-coral: #ff6b6b;
-  --color-amber: #ffb300;
-  --color-green: #98c379;
-  --color-purple: #c678dd;
-  --color-red: #ff4444;
-}
+/* Color custom properties are injected by layout.tsx from src/lib/constants.ts
+   — edit colors there, not here. */
 
 @theme inline {
   --color-bg: var(--color-bg);
@@ -109,9 +94,4 @@ body {
 
 .animate-spin-slow {
   animation: spin 1s linear infinite;
-}
-
-/* Hide preview text when observation card is expanded */
-details[open] .observation-preview {
-  display: none;
 }

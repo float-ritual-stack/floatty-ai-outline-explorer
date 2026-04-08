@@ -5,6 +5,31 @@ import { promisify } from "util";
 
 const execFileAsync = promisify(execFile);
 
+// Narrow env: only pass what qmd needs, never expose all server env vars to a subprocess.
+function buildQmdEnv() {
+  return {
+    HOME: process.env.HOME ?? "",
+    PATH: process.env.PATH ?? "",
+    NO_COLOR: "1",
+  };
+}
+
+// Check at first invocation whether the binary is available.
+// Returns null if available, an error string if not.
+let availabilityError: string | null | undefined = undefined;
+
+async function checkQmdAvailable(): Promise<string | null> {
+  if (availabilityError !== undefined) return availabilityError;
+  try {
+    await execFileAsync("which", ["qmd"], { env: buildQmdEnv() });
+    availabilityError = null;
+  } catch {
+    availabilityError =
+      "qmd binary not found on PATH. Install qmd and ensure it is available before using this tool.";
+  }
+  return availabilityError;
+}
+
 export const qmdSearchTool = tool({
   description:
     "Search the QMD knowledge base — 4900+ markdown documents across Linear issues, daily notes, sysops logs, technical writing, patterns, conversation exports, and more. Use when the outline references something (like a [[FLO-NNN]] issue, a person, a pattern, a decision) that isn't in the outline itself. Also useful for finding historical context about topics mentioned in blocks.",
@@ -26,6 +51,11 @@ export const qmdSearchTool = tool({
       .describe("Max results (default 5)"),
   }),
   execute: async ({ query, collection, limit = 5 }) => {
+    const unavailable = await checkQmdAvailable();
+    if (unavailable) {
+      return { total: 0, hits: [], error: unavailable, unavailable: true };
+    }
+
     try {
       const args = ["query", query, "--limit", String(limit), "--json"];
       if (collection) {
@@ -34,11 +64,9 @@ export const qmdSearchTool = tool({
 
       const { stdout } = await execFileAsync("qmd", args, {
         timeout: 30000,
-        env: { ...process.env, NO_COLOR: "1" },
+        env: buildQmdEnv(),
       });
 
-      // QMD outputs progress lines to stderr, JSON to stdout
-      // Parse the JSON array from stdout
       const results = JSON.parse(stdout);
 
       return {
