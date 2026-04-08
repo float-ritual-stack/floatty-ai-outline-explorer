@@ -55,7 +55,7 @@ function errorResult(msg: string) {
 
 // ── Tool registrations ──────────────────────────────────────────────
 
-export function registerTools(server: McpServer) {
+export function registerDataTools(server: McpServer) {
   // 1. expand_page — fetch a page's subtree by title
   server.tool(
     "expand_page",

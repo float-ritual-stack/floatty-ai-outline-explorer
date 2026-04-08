@@ -2,23 +2,34 @@
 /**
  * floatty-explorer MCP server
  *
- * Exposes the 6 explorer tools over stdio transport so external
- * MCP clients (Claude Desktop, Claude Code, etc.) can query the
- * floatty knowledge graph without the Next.js app running.
+ * Exposes 6 data tools + a render-ui tool over stdio transport.
+ * Data tools query the floatty knowledge graph via HTTP.
+ * The render-ui tool (from @json-render/mcp) renders explorer
+ * components inside an iframe in Claude Desktop, Cursor, etc.
  *
  * Requires FLOATTY_URL and FLOATTY_API_KEY env vars.
+ * Requires `pnpm mcp:build` to have run first (builds dist/mcp/index.html).
  */
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { createMcpApp } from "@json-render/mcp";
+import { explorerCatalog } from "../lib/catalog/explorer-catalog.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { registerTools } from "./tools.js";
-
-// Read version from package.json at startup
-import { readFileSync } from "fs";
+import { registerDataTools } from "./tools.js";
+import { readFileSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Read built iframe HTML
+const htmlPath = resolve(__dirname, "../../dist/mcp/index.html");
+if (!existsSync(htmlPath)) {
+  console.error("Missing dist/mcp/index.html — run `pnpm mcp:build` first.");
+  process.exit(1);
+}
+const html = readFileSync(htmlPath, "utf-8");
+
+// Read version from package.json
 let version = "0.0.0";
 try {
   const pkg = JSON.parse(
@@ -26,10 +37,10 @@ try {
   );
   version = pkg.version ?? version;
 } catch {
-  // Fall through — version stays at 0.0.0
+  // Fall through
 }
 
-// Validate required env vars before starting
+// Validate required env vars
 function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
@@ -45,30 +56,24 @@ function requireEnv(name: string): string {
 requireEnv("FLOATTY_URL");
 requireEnv("FLOATTY_API_KEY");
 
-// Create server
-const server = new McpServer({
+// Create MCP server with json-render UI
+const server = await createMcpApp({
   name: "floatty-explorer",
   version,
+  catalog: explorerCatalog,
+  html,
 });
 
-// Register all tools
-registerTools(server);
+// Register the 6 data tools alongside the auto-registered render-ui tool
+registerDataTools(server);
 
 // Connect via stdio
 const transport = new StdioServerTransport();
-
-async function main() {
-  await server.connect(transport);
-  console.error(
-    `floatty-explorer MCP server v${version} running on stdio`
-  );
-  console.error(`  FLOATTY_URL: ${process.env.FLOATTY_URL}`);
-}
-
-main().catch((err) => {
-  console.error("Fatal:", err);
-  process.exit(1);
-});
+await server.connect(transport);
+console.error(
+  `floatty-explorer MCP server v${version} running on stdio (with render-ui)`
+);
+console.error(`  FLOATTY_URL: ${process.env.FLOATTY_URL}`);
 
 // Graceful shutdown
 process.on("SIGINT", async () => {

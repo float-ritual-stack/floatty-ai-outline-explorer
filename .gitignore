@@ -19,6 +19,7 @@
 
 # production
 /build
+/dist/mcp
 
 # misc
 .DS_Store
