@@ -2,7 +2,7 @@
 import { colors, resolveColor } from "./shared";
 
 export const typographyRenderers = {
-  Heading: ({ element }: any) => {
+  Heading: ({ element, children }: any) => {
     const level = element.props.level ?? 1;
     const styles: Record<number, { size: string; color: string; weight: string }> = {
       1: { size: "text-[16px]", color: colors.cyan, weight: "font-bold" },
@@ -11,8 +11,11 @@ export const typographyRenderers = {
     };
     const s = styles[level] ?? styles[3];
     return (
-      <div className={`${s.size} ${s.weight} font-mono leading-snug mt-3 mb-1.5`} style={{ color: s.color }}>
-        {element.props.content}
+      <div>
+        <div className={`${s.size} ${s.weight} font-mono leading-snug mt-3 mb-1.5`} style={{ color: s.color }}>
+          {element.props.content}
+        </div>
+        {children}
       </div>
     );
   },

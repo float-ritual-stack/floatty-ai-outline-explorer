@@ -48,7 +48,7 @@ export const AI_ACTIONS: AiAction[] = [
     colorToken: "green",
     skillName: "spec-cold-start",
     taskInstruction:
-      "Then write a cold-start briefing in ctx:: format for a new Claude instance. 8-12 lines: what this is, state, decisions, key links, pending items.",
+      "Then emit a ```spec block using the loaded cold-start components: Heading(1, 'COLD-START BRIEFING'), Chips for project/date metadata, StatusLines for key status categories (URGENT/SHIPPED/DOCTRINE/HELD), BulletList for pending items, BlockRefs for key links. Cover: what this is, current state, key decisions, pending items. Then call suggest_walks.",
   },
   {
     id: "gaps",
