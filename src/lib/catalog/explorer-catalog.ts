@@ -274,6 +274,13 @@ export const explorerCatalog = defineCatalog(schema, {
       description: "Horizontal rule / visual separator.",
     },
 
+    Row: {
+      props: z.object({}),
+      slots: ["default"],
+      description:
+        "Horizontal flex row — wraps chip children with gap. Use for metadata chip rows and link rows.",
+    },
+
     // ── Rich visualizations (interactive data views) ─────────────────
 
     LinkGraph: {

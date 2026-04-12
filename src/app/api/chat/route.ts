@@ -4,6 +4,7 @@ import {
   createUIMessageStream,
   createUIMessageStreamResponse,
   stepCountIs,
+  hasToolCall,
   wrapLanguageModel,
   gateway,
   type UIMessage,
@@ -65,13 +66,21 @@ export async function POST(req: Request) {
         model,
         system: EXPLORER_INSTRUCTIONS,
         tools,
-        stopWhen: stepCountIs(steps),
+        stopWhen: [stepCountIs(steps), hasToolCall("suggest_walks")],
         maxOutputTokens: tokens,
         messages: filteredMessages,
-        onFinish({ finishReason }) {
+        onFinish({ finishReason, steps: finishedSteps }) {
+          const lastStep = finishedSteps[finishedSteps.length - 1];
+          const completedViaSuggests =
+            lastStep?.toolCalls?.some(
+              (tc) => (tc as { toolName: string }).toolName === "suggest_walks"
+            ) ?? false;
           writer.write({
             type: "data-step-status" as `data-${string}`,
-            data: { finishReason, maxSteps: steps },
+            data: {
+              finishReason: completedViaSuggests ? "completed" : finishReason,
+              maxSteps: steps,
+            },
           });
         },
       });
