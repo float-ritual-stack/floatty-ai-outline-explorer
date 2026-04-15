@@ -7,6 +7,10 @@ export const navRenderers = {
     <div className="flex flex-wrap gap-1.5 mb-2">{children}</div>
   ),
 
+  Timeline: ({ children }: any) => (
+    <div className="flex flex-col gap-0 mb-2">{children}</div>
+  ),
+
   BlockRef: ({ element }: any) => (
     <span
       className="inline-flex items-center gap-1 bg-cyan/10 text-cyan px-1.5 py-0.5 rounded text-[10px] cursor-pointer hover:bg-cyan/20 transition-colors"

@@ -281,6 +281,13 @@ export const explorerCatalog = defineCatalog(schema, {
         "Horizontal flex row — wraps chip children with gap. Use for metadata chip rows and link rows.",
     },
 
+    Timeline: {
+      props: z.object({}),
+      slots: ["default"],
+      description:
+        "Vertical container for TimelineEvent children. Use to group ordered ctx:: events, session arcs, or milestone sequences.",
+    },
+
     // ── Rich visualizations (interactive data views) ─────────────────
 
     LinkGraph: {
