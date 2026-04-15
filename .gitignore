@@ -43,7 +43,8 @@ next-env.d.ts
 
 # claude code plugins
 .agents/
-.claude/skills/
+.claude/skills/*
+!.claude/skills/designing-json-render-catalogs/
 .crush/
 .factory/
 .pi/
