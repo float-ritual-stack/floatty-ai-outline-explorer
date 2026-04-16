@@ -119,8 +119,9 @@ export function registerDataTools(server: McpServer) {
           id: string;
           content: string;
           blockType: string;
+          outputType?: string | null;
           childIds?: string[];
-          metadata?: { outlinks?: string[] } | null;
+          metadata?: { outlinks?: string[]; renderedMarkdown?: string | null; summary?: string | null } | null;
           ancestors?: { id: string; content: string }[];
           tree?: { depth: number; content: string }[];
         }>(`/api/v1/blocks/${blockId}${params}`);
@@ -132,15 +133,22 @@ export function registerDataTools(server: McpServer) {
           }
         }
 
+        const isDoor = block.outputType === "door";
+        const renderedMarkdown = block.metadata?.renderedMarkdown ?? null;
+
         return textResult({
           blockId: block.id,
           content: block.content,
           blockType: block.blockType,
+          outputType: block.outputType ?? null,
           breadcrumb: block.ancestors?.map((a) => a.content) ?? [],
           outlinks: block.metadata?.outlinks ?? [],
           childCount: block.childIds?.length ?? 0,
           tree: lines.join("\n"),
           treeBlockCount: block.tree?.length ?? 0,
+          ...(isDoor && renderedMarkdown
+            ? { renderedMarkdown, summary: block.metadata?.summary ?? null }
+            : {}),
         });
       } catch (e) {
         return errorResult(String(e));
