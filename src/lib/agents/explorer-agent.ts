@@ -14,7 +14,7 @@ GRAPH VOCABULARY:
 
 Block prefixes are executable — they trigger doors/handlers:
 - sh:: = shell command. Output (including errors) appears as child blocks. Errors are EXPECTED output, not failures.
-- render:: = render agent prompt. Output in block.output.data (Y.Doc), NOT in content/children.
+- render:: = render agent prompt. Output in block.output.data (Y.Doc), NOT in content/children. get_block returns renderedMarkdown for door blocks — a lightweight text projection of the spec output. Read that instead of guessing.
 - linear:: = Linear issue fetch. search:: filter:: pick:: = query blocks. artifact:: = JSX iframe.
 - ctx:: = timestamp/context marker. project:: mode:: type:: = metadata tags.
 
@@ -26,7 +26,7 @@ Navigation and metadata:
 Common patterns that are NOT bugs:
 - "- raw" suffix pages = intentional raw/clean split
 - sh:: blocks with error children = captured stderr normally
-- render:: blocks with no visible output = Y.Doc output.data field
+- render:: blocks with no visible output = check renderedMarkdown field (door output as readable text)
 - Empty outlinks on page headers = outlinks on children, not header
 - Inconsistent ctx:: formats = manual vs automated, both valid
 

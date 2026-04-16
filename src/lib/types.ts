@@ -12,6 +12,8 @@ export interface InheritedMarker extends Marker {
 export interface BlockMetadata {
   markers: Marker[];
   outlinks: string[];
+  renderedMarkdown?: string | null;
+  summary?: string | null;
 }
 
 export interface Block {

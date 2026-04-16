@@ -28,15 +28,24 @@ export const getBlockTool = tool({
 
     const breadcrumb = block.ancestors?.map((a) => a.content) ?? [];
 
+    // For door blocks, prefer renderedMarkdown (FLO-633 server-side projection,
+    // ~0.19× token cost vs raw spec) over the tree walk.
+    const renderedMarkdown = block.metadata?.renderedMarkdown ?? null;
+    const isDoor = block.outputType === "door";
+
     return {
       blockId: block.id,
       content: block.content,
       blockType: block.blockType,
+      outputType: block.outputType ?? null,
       breadcrumb,
       outlinks: block.metadata?.outlinks ?? [],
       childCount: block.childIds?.length ?? 0,
       tree: lines.join("\n"),
       treeBlockCount: block.tree?.length ?? 0,
+      ...(isDoor && renderedMarkdown
+        ? { renderedMarkdown, summary: block.metadata?.summary ?? null }
+        : {}),
     };
   },
 });
